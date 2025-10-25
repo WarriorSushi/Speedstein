@@ -98,10 +98,10 @@
 
 ### Integration Tests for User Story 1
 
-- [ ] T046 [P] [US1] Write integration test for POST /api/generate with valid HTML in tests/integration/api/generate.test.ts
-- [ ] T047 [P] [US1] Write integration test for POST /api/generate with custom options (A4, landscape, margins) in tests/integration/api/generate-options.test.ts
-- [ ] T048 [P] [US1] Write integration test for POST /api/generate with invalid HTML (>10MB) expecting 413 error in tests/integration/api/generate-errors.test.ts
-- [ ] T049 [P] [US1] Write integration test for quota enforcement (generate PDFs until quota exceeded, verify 429 error) in tests/integration/api/quota.test.ts
+- [X] T046 [P] [US1] Write integration test for POST /api/generate with valid HTML in tests/integration/api/generate.test.ts
+- [X] T047 [P] [US1] Write integration test for POST /api/generate with custom options (A4, landscape, margins) in tests/integration/api/generate-options.test.ts
+- [X] T048 [P] [US1] Write integration test for POST /api/generate with invalid HTML (>10MB) expecting 413 error in tests/integration/api/generate-errors.test.ts
+- [X] T049 [P] [US1] Write integration test for quota enforcement (generate PDFs until quota exceeded, verify 429 error) in tests/integration/api/quota.test.ts
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently - developers can generate PDFs via REST API
 
