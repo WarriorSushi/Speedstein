@@ -99,22 +99,30 @@ binding = "BROWSER"  # ✅ Workers Paid plan active
 
 ## Quick Start Guide
 
-### 1. Test Local Development
+### 1. Test Remote Development
+
+**Important**: Browser Rendering API is not supported in local mode. You must use `--remote` to test against Cloudflare's infrastructure.
 
 ```bash
 cd /c/coding/speedstein
 
-# Start the Cloudflare Worker locally
+# Start the Cloudflare Worker in remote mode (runs on Cloudflare, proxied locally)
 pnpm --filter @speedstein/worker dev
 
 # In another terminal, start the Next.js web app
 pnpm --filter @speedstein/web dev
 ```
 
-The worker will be available at: `http://localhost:8787`
+The worker will be available at: `http://localhost:8787` (proxied to Cloudflare)
 The web app will be available at: `http://localhost:3000`
 
-### 2. Test PDF Generation Locally
+**Note**: The `dev` script now uses `wrangler dev --remote` by default because:
+- Browser Rendering API requires remote execution
+- R2, KV, and Browser bindings work correctly
+- Changes are still hot-reloaded
+- Uses your actual Cloudflare infrastructure
+
+### 2. Test PDF Generation
 
 ```bash
 # Test the /api/generate endpoint
@@ -330,7 +338,27 @@ This will create:
 
 ## Troubleshooting
 
-### Worker won't start locally
+### "Browser Rendering is not supported locally" Error
+
+**Problem**: Running `wrangler dev` shows error about Browser Rendering not being supported.
+
+**Solution**: Use `wrangler dev --remote` instead (already configured as default):
+```bash
+pnpm --filter @speedstein/worker dev  # Uses --remote by default
+```
+
+The `--remote` flag runs your worker on Cloudflare's infrastructure while proxying requests to `localhost:8787`. This allows:
+- Browser Rendering API to work
+- R2 and KV bindings to work correctly
+- Hot reloading still functions
+- Real Cloudflare environment testing
+
+**Alternative**: If you need pure local development (without Browser API):
+```bash
+pnpm --filter @speedstein/worker dev:local  # Local mode without --remote
+```
+
+### Worker won't start
 
 ```bash
 # Check if .dev.vars exists
@@ -346,10 +374,11 @@ netstat -ano | findstr :8787  # Windows
 
 ### PDF generation fails
 
-- Verify Workers Paid plan is active
-- Check browser binding in wrangler.toml
+- Verify Workers Paid plan is active (required for Browser API)
+- Check browser binding in wrangler.toml: `[browser]` section exists
 - Ensure R2 bucket exists: `npx wrangler r2 bucket list`
 - Check worker logs: `npx wrangler tail`
+- Verify you're using `--remote` mode: `pnpm --filter @speedstein/worker dev`
 
 ### Database connection issues
 
