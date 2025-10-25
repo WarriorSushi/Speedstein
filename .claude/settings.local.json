@@ -14,7 +14,8 @@
       "Bash(else echo \"No checklists directory\")",
       "Bash(git rev-parse:*)",
       "Bash(pnpm:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
