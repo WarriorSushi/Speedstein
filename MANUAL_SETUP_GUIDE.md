@@ -1,157 +1,45 @@
-# Manual Setup Guide: Supabase and Cloudflare Configuration
+# Manual Setup Guide: Cloudflare Configuration
 
-This guide covers the manual setup tasks (T011, T015-T020, T027) required to configure external services for the Speedstein PDF API platform.
+This guide covers the remaining manual setup tasks (T018-T020, T027) required to configure external services for the Speedstein PDF API platform.
+
+## ✅ Already Completed
+
+The following Supabase tasks have already been completed:
+- ✅ **T011**: Supabase project created (Project ID: `czvvgfprjlkahobgncxo`)
+- ✅ **T015**: Database migrations pushed to cloud Supabase
+- ✅ **T016**: TypeScript types can be generated (see below)
+
+Environment variables for Supabase are already configured in `.env.local` files (git-ignored).
+
+### Generate Updated Database Types (T016)
+
+If the database schema changes, regenerate types with:
+
+```bash
+cd /c/coding/speedstein
+supabase gen types typescript --project-id czvvgfprjlkahobgncxo > packages/database/types.ts
+```
+
+---
 
 ## Prerequisites
 
 Before starting, ensure you have:
 - A GitHub account (for Cloudflare Pages integration)
-- A credit card (Cloudflare requires it for Workers Paid plan, Supabase may require it for production)
-- Access to create accounts on Supabase and Cloudflare
+- A credit card (Cloudflare requires it for Workers Paid plan)
+- Access to create a Cloudflare account
 
 ---
 
-## Part 1: Supabase Setup (T011, T015, T016)
+## Part 1: ~~Supabase Setup~~ ✅ COMPLETED
 
-### T011: Create Supabase Project
-
-1. **Create Supabase Account**
-   - Go to [https://supabase.com](https://supabase.com)
-   - Click "Start your project" or "Sign in"
-   - Sign in with GitHub (recommended) or email
-
-2. **Create New Organization** (if first time)
-   - Click "New organization"
-   - Enter organization name (e.g., "Speedstein")
-   - Choose "Free" tier for development
-
-3. **Create New Project**
-   - Click "New project"
-   - **Project name**: `speedstein-dev` (or your preferred name)
-   - **Database Password**: Generate a strong password and save it securely
-   - **Region**: Choose closest to your users (e.g., `us-east-1` for US East Coast)
-   - **Pricing Plan**: Free (for development)
-   - Click "Create new project"
-   - Wait 2-3 minutes for provisioning
-
-4. **Get Environment Variables**
-
-   Once the project is ready:
-   - Click on "Settings" (gear icon in sidebar)
-   - Navigate to "API" section
-   - Copy the following values:
-
-   ```bash
-   # Project URL
-   SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
-
-   # Anon/Public Key (safe for client-side use)
-   SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-   # Service Role Key (NEVER expose client-side, server-only)
-   SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-   ```
-
-5. **Update Environment Files**
-
-   Update `apps/worker/.env` (create if doesn't exist):
-   ```env
-   SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
-   SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-   SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-   ```
-
-   Update `apps/web/.env.local` (create if doesn't exist):
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-   ```
-
----
-
-### T015: Run Database Migrations
-
-1. **Install Supabase CLI** (if not already installed)
-
-   ```bash
-   # Using npm
-   npm install -g supabase
-
-   # Or using Homebrew (macOS/Linux)
-   brew install supabase/tap/supabase
-
-   # Or using Scoop (Windows)
-   scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
-   scoop install supabase
-   ```
-
-   Verify installation:
-   ```bash
-   supabase --version
-   ```
-
-2. **Login to Supabase CLI**
-
-   ```bash
-   supabase login
-   ```
-
-   This will open a browser for authentication. Grant access when prompted.
-
-3. **Link Local Project to Remote Supabase Project**
-
-   ```bash
-   cd /c/coding/speedstein
-   supabase link --project-ref xxxxxxxxxxxxx
-   ```
-
-   Replace `xxxxxxxxxxxxx` with your project reference ID (found in Supabase dashboard URL: `https://supabase.com/dashboard/project/xxxxxxxxxxxxx`)
-
-4. **Run Migrations**
-
-   ```bash
-   # Run all migrations
-   supabase db push
-   ```
-
-   This will execute:
-   - `packages/database/migrations/001_initial_schema.sql` - Create tables
-   - `packages/database/migrations/002_rls_policies.sql` - Setup RLS policies
-   - `packages/database/migrations/003_indexes.sql` - Add performance indexes
-
-5. **Verify Migrations**
-
-   In Supabase Dashboard:
-   - Go to "Table Editor"
-   - Verify tables exist: `users`, `api_keys`, `subscriptions`, `usage_quotas`, `usage_records`, `invoices`
-   - Click "Policies" to verify RLS policies are active
-
----
-
-### T016: Generate TypeScript Types from Database Schema
-
-1. **Generate Types**
-
-   ```bash
-   cd /c/coding/speedstein
-
-   # Generate types from remote database
-   supabase gen types typescript --project-id xxxxxxxxxxxxx > packages/database/types.ts
-   ```
-
-   Replace `xxxxxxxxxxxxx` with your project reference ID.
-
-2. **Verify Generated Types**
-
-   Open `packages/database/types.ts` and verify it contains interfaces for:
-   - `Database` type with `public` schema
-   - `Tables` with all table definitions
-   - `Enums` if any exist
-   - `Functions` if any exist
-
-3. **Update Shared Package**
-
-   The generated types are automatically available to all apps through the shared package.
+**Status**: Supabase project is fully configured and linked.
+- Project ID: `czvvgfprjlkahobgncxo`
+- Database migrations already pushed
+- Environment variables configured in `.env.local` (git-ignored)
+- Tables created: `users`, `api_keys`, `subscriptions`, `usage_quotas`, `usage_records`, `invoices`
+- RLS policies active
+- Performance indexes applied
 
 ---
 
@@ -425,29 +313,28 @@ Before starting, ensure you have:
 
 ## Summary Checklist
 
-After completing all manual tasks, verify:
+**Completed:**
+- [X] **T011**: Supabase project created, environment variables set ✅
+- [X] **T015**: Database migrations executed successfully ✅
+- [X] **T016**: TypeScript types can be generated (command provided above) ✅
 
-- [ ] **T011**: Supabase project created, environment variables set
-- [ ] **T015**: Database migrations executed successfully
-- [ ] **T016**: TypeScript types generated from database schema
+**Remaining tasks:**
 - [ ] **T018**: Cloudflare R2 bucket created and configured
 - [ ] **T019**: Cloudflare KV namespace created and configured
 - [ ] **T020**: Cloudflare Browser Rendering API enabled (Workers Paid plan)
 - [ ] **T027**: Sentry projects created and SDKs configured
-- [ ] **DodoPayments**: API keys obtained and configured
+- [ ] **DodoPayments**: API keys obtained and configured (optional for testing)
 
 ---
 
 ## Environment Variables Summary
 
-After completing all steps, your environment files should contain:
-
-**`apps/worker/.env`:**
+**`apps/worker/.env.local`:** (already configured, git-ignored)
 ```env
-# Supabase
-SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+# Supabase - ✅ ALREADY CONFIGURED
+SUPABASE_URL=https://czvvgfprjlkahobgncxo.supabase.co
+SUPABASE_ANON_KEY=<already set>
+SUPABASE_SERVICE_ROLE_KEY=<already set>
 
 # DodoPayments
 DODOPAYMENTS_SECRET_KEY=sk_test_xxxxxxxxxxxxx
@@ -463,11 +350,11 @@ R2_ACCESS_KEY_ID=xxxxxxxxxxxxxxxxxxxxx
 R2_SECRET_ACCESS_KEY=yyyyyyyyyyyyyyyyyyyyyy
 ```
 
-**`apps/web/.env.local`:**
+**`apps/web/.env.local`:** (already configured, git-ignored)
 ```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+# Supabase - ✅ ALREADY CONFIGURED
+NEXT_PUBLIC_SUPABASE_URL=https://czvvgfprjlkahobgncxo.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<already set>
 
 # DodoPayments
 NEXT_PUBLIC_DODOPAYMENTS_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxx

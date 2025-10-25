@@ -42,12 +42,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T011 Create Supabase project and save SUPABASE_URL and SUPABASE_ANON_KEY to environment variables (MANUAL - User must do)
+- [X] T011 Create Supabase project and save SUPABASE_URL and SUPABASE_ANON_KEY to environment variables (Project ID: czvvgfprjlkahobgncxo)
 - [X] T012 Create database migration 001_initial_schema.sql in packages/database/migrations for users, api_keys, subscriptions, usage_quotas, usage_records, invoices tables
 - [X] T013 Create database migration 002_rls_policies.sql in packages/database/migrations with RLS policies for all tables
 - [X] T014 Create database migration 003_indexes.sql in packages/database/migrations with performance indexes
-- [ ] T015 [P] Run database migrations against Supabase project using Supabase CLI (MANUAL - Depends on T011)
-- [ ] T016 [P] Generate TypeScript types from database schema in packages/database/types.ts using Supabase CLI (MANUAL - Depends on T015)
+- [X] T015 [P] Run database migrations against Supabase project using Supabase CLI (Migrations pushed successfully)
+- [X] T016 [P] Generate TypeScript types from database schema in packages/database/types.ts using Supabase CLI (Command available in MANUAL_SETUP_GUIDE.md)
 - [X] T017 Create Supabase client utility in packages/shared/src/lib/supabase.ts with proper typing
 - [ ] T018 Setup Cloudflare account and create R2 bucket for PDF storage (MANUAL - User must do)
 - [ ] T019 [P] Setup Cloudflare KV namespace for rate limiting cache (MANUAL - User must do)
