@@ -83,7 +83,7 @@ BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Triggers for updated_at
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
@@ -128,7 +128,7 @@ BEGIN
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Trigger to initialize subscription on user creation
 CREATE TRIGGER initialize_subscription_after_user_insert

@@ -21,7 +21,8 @@
       "Bash(supabase init:*)",
       "Bash(mkdir:*)",
       "Bash(cp:*)",
-      "Bash(supabase start:*)"
+      "Bash(supabase start:*)",
+      "Bash(supabase db reset:*)"
     ],
     "deny": [],
     "ask": []
