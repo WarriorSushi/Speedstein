@@ -1,15 +1,23 @@
-# Manual Setup Guide: Cloudflare Configuration
+# Manual Setup Guide: Remaining Configuration
 
-This guide covers the remaining manual setup tasks (T018-T020, T027) required to configure external services for the Speedstein PDF API platform.
+This guide covers the remaining manual setup tasks (T019, T020, T027) required to configure external services for the Speedstein PDF API platform.
 
 ## ✅ Already Completed
 
-The following Supabase tasks have already been completed:
+The following tasks have already been completed:
+
+**Supabase (T011, T015, T016):**
 - ✅ **T011**: Supabase project created (Project ID: `czvvgfprjlkahobgncxo`)
 - ✅ **T015**: Database migrations pushed to cloud Supabase
 - ✅ **T016**: TypeScript types can be generated (see below)
 
-Environment variables for Supabase are already configured in `.env.local` files (git-ignored).
+**Cloudflare R2 (T018):**
+- ✅ **T018**: R2 bucket configured (`speedstein-pdfs`)
+- ✅ R2 Access Key ID: `9fbe1a66a6804284aa88498571828241`
+- ✅ R2 credentials configured in `apps/worker/.dev.vars` (git-ignored)
+- ✅ Jurisdiction endpoint: `https://d0bd6c8419b815cd8b9ce41f5175b29e.r2.cloudflarestorage.com`
+
+Environment variables are configured in `.env.local` and `.dev.vars` files (git-ignored).
 
 ### Generate Updated Database Types (T016)
 
@@ -43,60 +51,17 @@ Before starting, ensure you have:
 
 ---
 
-## Part 2: Cloudflare Setup (T018, T019, T020)
+## Part 2: Cloudflare Setup
 
-### T018: Setup Cloudflare R2 Bucket for PDF Storage
+### ~~T018: Setup Cloudflare R2 Bucket for PDF Storage~~ ✅ COMPLETED
 
-1. **Create Cloudflare Account**
-   - Go to [https://dash.cloudflare.com/sign-up](https://dash.cloudflare.com/sign-up)
-   - Sign up with email or GitHub
-   - Verify email address
-
-2. **Add Payment Method**
-   - Click on your profile (top right)
-   - Go to "Billing"
-   - Add a credit/debit card
-   - Note: R2 has 10 GB/month free storage, but requires payment method on file
-
-3. **Create R2 Bucket**
-   - In Cloudflare Dashboard, click "R2" in left sidebar
-   - If first time, click "Purchase R2" (you won't be charged unless you exceed free tier)
-   - Click "Create bucket"
-   - **Bucket name**: `speedstein-pdfs-dev` (must be globally unique)
-   - **Location**: Automatic (or choose specific region for lower latency)
-   - Click "Create bucket"
-
-4. **Create R2 API Token**
-   - In R2 overview, click "Manage R2 API Tokens"
-   - Click "Create API token"
-   - **Token name**: `speedstein-worker-token`
-   - **Permissions**:
-     - Select "Object Read & Write"
-     - Choose "Apply to specific buckets only"
-     - Select `speedstein-pdfs-dev`
-   - Click "Create API Token"
-   - **IMPORTANT**: Copy the following values immediately (they won't be shown again):
-     ```
-     Access Key ID: xxxxxxxxxxxxxxxxxxxxx
-     Secret Access Key: yyyyyyyyyyyyyyyyyyyyyy
-     ```
-
-5. **Update wrangler.toml**
-
-   Open `apps/worker/wrangler.toml` and add:
-   ```toml
-   [[r2_buckets]]
-   binding = "PDF_BUCKET"
-   bucket_name = "speedstein-pdfs-dev"
-   ```
-
-6. **Set R2 Secrets** (for local development)
-
-   Create `apps/worker/.dev.vars` (this file is gitignored):
-   ```env
-   R2_ACCESS_KEY_ID=xxxxxxxxxxxxxxxxxxxxx
-   R2_SECRET_ACCESS_KEY=yyyyyyyyyyyyyyyyyyyyyy
-   ```
+**Status**: R2 bucket is fully configured.
+- Bucket name: `speedstein-pdfs`
+- Binding in wrangler.toml: `PDF_STORAGE`
+- Access Key ID: `9fbe1a66a6804284aa88498571828241`
+- Credentials configured in `apps/worker/.dev.vars` (git-ignored)
+- Jurisdiction endpoint: `https://d0bd6c8419b815cd8b9ce41f5175b29e.r2.cloudflarestorage.com`
+- Worker token configured for deployments
 
 ---
 
@@ -317,12 +282,12 @@ Before starting, ensure you have:
 - [X] **T011**: Supabase project created, environment variables set ✅
 - [X] **T015**: Database migrations executed successfully ✅
 - [X] **T016**: TypeScript types can be generated (command provided above) ✅
+- [X] **T018**: Cloudflare R2 bucket created and configured ✅
 
 **Remaining tasks:**
-- [ ] **T018**: Cloudflare R2 bucket created and configured
 - [ ] **T019**: Cloudflare KV namespace created and configured
 - [ ] **T020**: Cloudflare Browser Rendering API enabled (Workers Paid plan)
-- [ ] **T027**: Sentry projects created and SDKs configured
+- [ ] **T027**: Sentry projects created and SDKs configured (optional for development)
 - [ ] **DodoPayments**: API keys obtained and configured (optional for testing)
 
 ---
@@ -344,10 +309,15 @@ SENTRY_DSN=https://xxxxx@xxxxx.ingest.sentry.io/xxxxx
 SENTRY_ENVIRONMENT=development
 ```
 
-**`apps/worker/.dev.vars`:** (gitignored)
+**`apps/worker/.dev.vars`:** (already configured, git-ignored)
 ```env
-R2_ACCESS_KEY_ID=xxxxxxxxxxxxxxxxxxxxx
-R2_SECRET_ACCESS_KEY=yyyyyyyyyyyyyyyyyyyyyy
+# Cloudflare R2 - ✅ ALREADY CONFIGURED
+R2_ACCESS_KEY_ID=9fbe1a66a6804284aa88498571828241
+R2_SECRET_ACCESS_KEY=9eb271f3a452340b99423a089e2b2e1915a06900c68e9c5ea7b17f323aa0e2f6
+R2_ENDPOINT=https://d0bd6c8419b815cd8b9ce41f5175b29e.r2.cloudflarestorage.com
+
+# Cloudflare Worker Token - ✅ ALREADY CONFIGURED
+CLOUDFLARE_API_TOKEN=C-HdZxF7sD0xYQvnVYXenwfchJxq14Hi9mp7O7ag
 ```
 
 **`apps/web/.env.local`:** (already configured, git-ignored)

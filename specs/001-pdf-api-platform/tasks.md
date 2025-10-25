@@ -49,9 +49,9 @@
 - [X] T015 [P] Run database migrations against Supabase project using Supabase CLI (Migrations pushed successfully)
 - [X] T016 [P] Generate TypeScript types from database schema in packages/database/types.ts using Supabase CLI (Command available in MANUAL_SETUP_GUIDE.md)
 - [X] T017 Create Supabase client utility in packages/shared/src/lib/supabase.ts with proper typing
-- [ ] T018 Setup Cloudflare account and create R2 bucket for PDF storage (MANUAL - User must do)
+- [X] T018 Setup Cloudflare account and create R2 bucket for PDF storage (Bucket: speedstein-pdfs, credentials in .dev.vars)
 - [ ] T019 [P] Setup Cloudflare KV namespace for rate limiting cache (MANUAL - User must do)
-- [ ] T020 [P] Configure Cloudflare Browser Rendering API binding in wrangler.toml (MANUAL - User must do)
+- [ ] T020 [P] Configure Cloudflare Browser Rendering API binding in wrangler.toml (MANUAL - Requires Workers Paid plan)
 - [X] T021 Create shared TypeScript types in packages/shared/src/types/api.ts (PdfOptions, PdfResult, ApiError)
 - [X] T022 [P] Create shared Zod schemas in packages/shared/src/lib/validation.ts (GeneratePdfSchema, CreateApiKeySchema)
 - [X] T023 [P] Setup Tailwind CSS config in apps/web/tailwind.config.ts with OKLCH color system tokens

@@ -16,6 +16,8 @@ id = "placeholder_kv_id"
 [[r2_buckets]]
 binding = "PDF_STORAGE"
 bucket_name = "speedstein-pdfs"
+# Jurisdiction-specific endpoint: https://d0bd6c8419b815cd8b9ce41f5175b29e.r2.cloudflarestorage.com
+# Credentials in .dev.vars for local development (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY)
 
-[[browser]]
+[browser]
 binding = "BROWSER"
