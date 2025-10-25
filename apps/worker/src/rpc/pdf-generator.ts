@@ -7,7 +7,7 @@
  * @packageDocumentation
  */
 
-import { RpcTarget } from 'capnp-ts';
+import { RpcTarget } from 'capnweb';
 import type { PdfOptions, PdfResult } from '@speedstein/shared/types/pdf';
 import { PdfService } from '../services/pdf.service';
 import { AuthService } from '../services/auth.service';

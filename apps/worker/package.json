@@ -12,7 +12,7 @@
   "dependencies": {
     "@cloudflare/workers-types": "^4.20231218.0",
     "@supabase/supabase-js": "^2.39.0",
-    "capnp-ts": "^0.7.0",
+    "capnweb": "^0.1.0",
     "zod": "^3.22.0",
     "hono": "^3.12.0"
   },
