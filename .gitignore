@@ -64,3 +64,11 @@ Thumbs.db
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Sentry
+.sentryclirc
+sentry.properties
+
+# Temp files
+*.tmp
+*.log
