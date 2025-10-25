@@ -17,7 +17,11 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(supabase --version:*)",
-      "Bash(docker:*)"
+      "Bash(docker:*)",
+      "Bash(supabase init:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(supabase start:*)"
     ],
     "deny": [],
     "ask": []
