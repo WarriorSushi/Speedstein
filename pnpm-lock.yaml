@@ -32,9 +32,6 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.39.0
         version: 2.76.1
-      capnp-ts:
-        specifier: ^0.7.0
-        version: 0.7.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1625,9 +1622,6 @@ packages:
   canvas@2.11.2:
     resolution: {integrity: sha512-ItanGBMrmRV7Py2Z+Xhs7cT+FNt5K0vPL4p9EZ/UX/Mu7hFbkxSjKF2KVtPwX7UYWp7dRKnrTvReflgrItJbdw==}
     engines: {node: '>=6'}
-
-  capnp-ts@0.7.0:
-    resolution: {integrity: sha512-XKxXAC3HVPv7r674zP0VC3RTXz+/JKhfyw94ljvF80yynK6VkTnqE3jMuN8b3dUVmmc43TjyxjW4KTsmB3c86g==}
 
   capnweb@0.1.0:
     resolution: {integrity: sha512-+pygKx1JFTZTRdd1hHgaBRg5BwULEDZq8ZoHXkYP2GXNV3lrjXLj5qzlGz+SgBCJjWUmNBtlh7JPWdr0wIbY8w==}
@@ -4838,13 +4832,6 @@ snapshots:
       - encoding
       - supports-color
     optional: true
-
-  capnp-ts@0.7.0:
-    dependencies:
-      debug: 4.4.3
-      tslib: 2.8.1
-    transitivePeerDependencies:
-      - supports-color
 
   capnweb@0.1.0: {}
 
