@@ -1,6 +1,6 @@
 # Manual Setup Guide: Remaining Configuration
 
-This guide covers the remaining manual setup tasks (T019, T020, T027) required to configure external services for the Speedstein PDF API platform.
+This guide covers the remaining manual setup tasks (T020, T027) required to configure external services for the Speedstein PDF API platform.
 
 ## ✅ Already Completed
 
@@ -12,10 +12,16 @@ The following tasks have already been completed:
 - ✅ **T016**: TypeScript types can be generated (see below)
 
 **Cloudflare R2 (T018):**
-- ✅ **T018**: R2 bucket configured (`speedstein-pdfs`)
+- ✅ **T018**: R2 bucket configured (`speedstein-pdfs-dev`)
 - ✅ R2 Access Key ID: `9fbe1a66a6804284aa88498571828241`
 - ✅ R2 credentials configured in `apps/worker/.dev.vars` (git-ignored)
 - ✅ Jurisdiction endpoint: `https://d0bd6c8419b815cd8b9ce41f5175b29e.r2.cloudflarestorage.com`
+
+**Cloudflare KV (T019):**
+- ✅ **T019**: KV namespaces created and configured
+- ✅ Production namespace: `speedstein-rate-limit-dev` (ID: `22a4d1624e4848ed9fdcc541bcf7ab39`)
+- ✅ Preview namespace: `speedstein-rate-limit-preview` (ID: `c7c30649626b482bbd08001d64b0f8ea`)
+- ✅ Configured in `wrangler.toml` with binding `RATE_LIMIT_KV`
 
 Environment variables are configured in `.env.local` and `.dev.vars` files (git-ignored).
 
@@ -65,39 +71,15 @@ Before starting, ensure you have:
 
 ---
 
-### T019: Setup Cloudflare KV Namespace for Rate Limiting
+### ~~T019: Setup Cloudflare KV Namespace for Rate Limiting~~ ✅ COMPLETED
 
-1. **Create KV Namespace**
-
-   In Cloudflare Dashboard:
-   - Click "Workers & Pages" in left sidebar
-   - Click "KV" tab
-   - Click "Create namespace"
-   - **Namespace name**: `speedstein-rate-limit-dev`
-   - Click "Add"
-
-2. **Get Namespace ID**
-
-   After creation, copy the **Namespace ID** (it looks like: `a1b2c3d4e5f6...`)
-
-3. **Update wrangler.toml**
-
-   Open `apps/worker/wrangler.toml` and add:
-   ```toml
-   [[kv_namespaces]]
-   binding = "RATE_LIMIT_KV"
-   id = "a1b2c3d4e5f6..."  # Replace with your actual namespace ID
-   ```
-
-4. **Create Preview Namespace** (for testing)
-
-   Repeat steps 1-3 but create `speedstein-rate-limit-preview` and add:
-   ```toml
-   [[kv_namespaces]]
-   binding = "RATE_LIMIT_KV"
-   id = "a1b2c3d4e5f6..."
-   preview_id = "x9y8z7w6v5u4..."  # Preview namespace ID
-   ```
+**Status**: KV namespaces are fully configured.
+- Production namespace: `speedstein-rate-limit-dev`
+  - Namespace ID: `22a4d1624e4848ed9fdcc541bcf7ab39`
+- Preview namespace: `speedstein-rate-limit-preview`
+  - Namespace ID: `c7c30649626b482bbd08001d64b0f8ea`
+- Binding in wrangler.toml: `RATE_LIMIT_KV`
+- Both namespaces configured and ready for use
 
 ---
 
@@ -283,10 +265,10 @@ Before starting, ensure you have:
 - [X] **T015**: Database migrations executed successfully ✅
 - [X] **T016**: TypeScript types can be generated (command provided above) ✅
 - [X] **T018**: Cloudflare R2 bucket created and configured ✅
+- [X] **T019**: Cloudflare KV namespaces created and configured ✅
 
 **Remaining tasks:**
-- [ ] **T019**: Cloudflare KV namespace created and configured
-- [ ] **T020**: Cloudflare Browser Rendering API enabled (Workers Paid plan)
+- [ ] **T020**: Cloudflare Browser Rendering API enabled (Workers Paid plan) - **REQUIRED FOR PDF GENERATION**
 - [ ] **T027**: Sentry projects created and SDKs configured (optional for development)
 - [ ] **DodoPayments**: API keys obtained and configured (optional for testing)
 
