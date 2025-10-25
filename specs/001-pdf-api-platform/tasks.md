@@ -74,27 +74,27 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T028 [P] [US1] Write unit test for API key hashing utility in apps/worker/src/lib/__tests__/crypto.test.ts
-- [ ] T029 [P] [US1] Write unit test for HTML validation with Zod schema in apps/worker/src/lib/__tests__/validation.test.ts
-- [ ] T030 [P] [US1] Write unit test for quota checking logic in apps/worker/src/services/__tests__/quota.service.test.ts
-- [ ] T031 [P] [US1] Write unit test for PDF generation options parsing in apps/worker/src/services/__tests__/pdf.service.test.ts
+- [X] T028 [P] [US1] Write unit test for API key hashing utility in apps/worker/src/lib/__tests__/crypto.test.ts
+- [X] T029 [P] [US1] Write unit test for HTML validation with Zod schema in apps/worker/src/lib/__tests__/validation.test.ts
+- [X] T030 [P] [US1] Write unit test for quota checking logic in apps/worker/src/services/__tests__/quota.service.test.ts
+- [X] T031 [P] [US1] Write unit test for PDF generation options parsing in apps/worker/src/services/__tests__/pdf.service.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T032 [P] [US1] Create PdfOptions and PdfResult types in packages/shared/src/types/pdf.ts
-- [ ] T033 [P] [US1] Create ApiError class in packages/shared/src/lib/errors.ts with error codes (INVALID_HTML, QUOTA_EXCEEDED, GENERATION_TIMEOUT)
-- [ ] T034 [US1] Implement crypto utility in apps/worker/src/lib/crypto.ts for SHA-256 API key hashing
-- [ ] T035 [US1] Implement R2 upload utility in apps/worker/src/lib/r2.ts for PDF storage with 30-day TTL
-- [ ] T036 [US1] Create PdfService in apps/worker/src/services/pdf.service.ts with generatePdf method using Cloudflare Browser Rendering API
-- [ ] T037 [US1] Implement browser session pooling in apps/worker/src/lib/browser-pool.ts (maintain 5-10 warm Chrome instances, lazy close on timeout)
-- [ ] T038 [US1] Create AuthService in apps/worker/src/services/auth.service.ts with validateApiKey method (SHA-256 hash lookup in api_keys table)
-- [ ] T039 [US1] Create QuotaService in apps/worker/src/services/quota.service.ts with checkQuota and incrementUsage methods
-- [ ] T040 [US1] Implement rate limiting middleware in apps/worker/src/middleware/rate-limit.ts using Cloudflare KV with sliding window algorithm
-- [ ] T041 [US1] Implement CORS middleware in apps/worker/src/middleware/cors.ts with proper preflight handling
-- [ ] T042 [US1] Create PdfGeneratorApi RpcTarget in apps/worker/src/rpc/pdf-generator.ts extending RpcTarget with generatePdf and ping methods
-- [ ] T043 [US1] Implement REST API endpoint handler in apps/worker/src/index.ts for POST /api/generate with auth, quota check, PDF generation, usage tracking
-- [ ] T044 [US1] Add structured logging for PDF generation in apps/worker/src/lib/logger.ts (log generation time, HTML size, user ID, API key ID)
-- [ ] T045 [US1] Implement resource disposal with try-finally blocks in PdfService to ensure browser pages are always closed
+- [X] T032 [P] [US1] Create PdfOptions and PdfResult types in packages/shared/src/types/pdf.ts
+- [X] T033 [P] [US1] Create ApiError class in packages/shared/src/lib/errors.ts with error codes (INVALID_HTML, QUOTA_EXCEEDED, GENERATION_TIMEOUT)
+- [X] T034 [US1] Implement crypto utility in apps/worker/src/lib/crypto.ts for SHA-256 API key hashing
+- [X] T035 [US1] Implement R2 upload utility in apps/worker/src/lib/r2.ts for PDF storage with 30-day TTL
+- [X] T036 [US1] Create PdfService in apps/worker/src/services/pdf.service.ts with generatePdf method using Cloudflare Browser Rendering API
+- [X] T037 [US1] Implement browser session pooling in apps/worker/src/lib/browser-pool.ts (maintain exactly 8 warm Chrome contexts, FIFO eviction after 5min idle, max pool age 1 hour, dispose on worker shutdown)
+- [X] T038 [US1] Create AuthService in apps/worker/src/services/auth.service.ts with validateApiKey method (SHA-256 hash lookup in api_keys table)
+- [X] T039 [US1] Create QuotaService in apps/worker/src/services/quota.service.ts with checkQuota and incrementUsage methods
+- [X] T040 [US1] Implement rate limiting middleware in apps/worker/src/middleware/rate-limit.ts using Cloudflare KV with sliding window algorithm
+- [X] T041 [US1] Implement CORS middleware in apps/worker/src/middleware/cors.ts with proper preflight handling
+- [X] T042 [US1] Create PdfGeneratorApi RpcTarget in apps/worker/src/rpc/pdf-generator.ts extending RpcTarget with generatePdf and ping methods
+- [X] T043 [US1] Implement REST API endpoint handler in apps/worker/src/index.ts for POST /api/generate with auth, quota check, PDF generation, usage tracking
+- [X] T044 [US1] Add structured logging for PDF generation in apps/worker/src/lib/logger.ts (log generation time, HTML size, user ID, API key ID)
+- [X] T045 [US1] Implement resource disposal with try-finally blocks in PdfService to ensure browser pages are always closed
 
 ### Integration Tests for User Story 1
 
@@ -128,7 +128,7 @@
 - [ ] T057 [US2] Implement Monaco code editor component in apps/web/src/components/landing/demo-editor.tsx with HTML syntax highlighting and sample content
 - [ ] T058 [US2] Create PDF viewer component in apps/web/src/components/landing/pdf-viewer.tsx using iframe to display generated PDF
 - [ ] T059 [US2] Implement demo generation handler in apps/web/src/app/(marketing)/page.tsx that calls public /api/generate-demo endpoint
-- [ ] T060 [US2] Create public demo endpoint in apps/worker/src/index.ts at /api/generate-demo with stricter rate limits (10 PDFs/hour per IP)
+- [ ] T060 [US2] Create public demo endpoint in apps/worker/src/index.ts at /api/generate-demo with rate limiting by X-Forwarded-For IP address (10 requests per sliding 1-hour window using Cloudflare KV, return 429 with Retry-After header when exceeded)
 - [ ] T061 [US2] Add generation time display in apps/web/src/components/landing/generation-stats.tsx showing "Generated in X.XX seconds"
 - [ ] T062 [US2] Optimize Monaco editor bundle with dynamic import in apps/web/src/components/landing/demo-editor.tsx to achieve LCP <2s
 - [ ] T063 [US2] Add responsive styles for mobile in apps/web/src/components/landing/hero.tsx using Tailwind breakpoints (sm:, md:, lg:)
