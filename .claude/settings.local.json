@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch:*)",
+      "SlashCommand(/speckit.constitution Create a constitution for Speedstein, a high-performance PDF generation API. if exisiting constitution markdown is present in memory folder, alter its content according to the already present skeleton\n\nCORE PRINCIPLES:\n\n1. PERFORMANCE FIRST (NON-NEGOTIABLE)\n   - All PDFs must generate in under 2 seconds (P95 latency)\n   - Browser session reuse is mandatory for performance\n   - Promise pipelining must be used for batch operations\n   - No cold starts - keep Chrome instances warm\n\n2. SECURITY & AUTHENTICATION\n   - All API keys MUST be SHA-256 hashed before storage\n   - Never store plaintext API keys\n   - Row Level Security (RLS) must be enabled on all Supabase tables\n   - Rate limiting is mandatory on all API endpoints\n   - CORS must be properly configured\n\n3. DESIGN SYSTEM STANDARDS (NON-NEGOTIABLE)\n   - ONLY use OKLCH color space - never RGB, HSL, or hex colors\n   - All colors must be perceptually uniform for accessibility\n   - WCAG AAA contrast compliance is mandatory\n   - Elevation system uses OKLCH lightness manipulation only\n   - shadcn/ui components exclusively - no other UI libraries\n\n4. TECHNOLOGY STACK CONSTRAINTS\n   - Frontend: Next.js 15 with App Router (mandatory)\n   - Backend: Cloudflare Workers (mandatory)\n   - RPC: Cap'n Web for all PDF generation (mandatory)\n   - Database: Supabase with RLS policies (mandatory)\n   - Payments: DodoPayments (mandatory)\n   - Styling: Tailwind CSS with OKLCH tokens (mandatory)\n\n5. CODE QUALITY\n   - TypeScript strict mode required\n   - All functions must have proper error handling\n   - No console.log in production code\n   - Zod schemas for all API validation\n   - Proper resource disposal for browser instances\n\n6. CAP'N WEB BEST PRACTICES (CRITICAL)\n   - Always extend RpcTarget for server-side classes\n   - Use promise pipelining for dependent operations\n   - Dispose resources properly with 'using' keyword\n   - Keep WebSocket sessions alive with heartbeats\n   - Never block the event loop in RPC methods\n\n7. USER EXPERIENCE\n   - Landing page must load in under 2 seconds\n   - Live demo must work without signup\n   - Dark mode support is mandatory\n   - Mobile-responsive design required\n   - Lighthouse score must be 95+ on all pages\n\n8. TESTING & QUALITY\n   - Unit tests for critical business logic\n   - Integration tests for API endpoints\n   - E2E tests for user flows (signup, generate PDF)\n   - 80%+ code coverage target\n   - No broken links or 404 errors\n\n9. DOCUMENTATION\n   - All API endpoints must be documented\n   - Code examples in JavaScript, Python, PHP, Ruby\n   - README with setup instructions\n   - Inline comments for complex logic\n\n10. DEPLOYMENT & OPERATIONS\n    - Zero-downtime deployments\n    - Error tracking with Sentry\n    - Uptime monitoring with 99.9% SLA\n    - Proper logging for debugging\n    - Environment variables for all secrets\n\nGOVERNANCE:\n- Constitution supersedes all other practices\n- Deviations require explicit documentation and approval\n- All PRs must verify compliance with these principles\n- Performance regressions are blocking issues\n- Security issues are critical priority\n\nREFERENCE DOCUMENTS:\nThe following markdown files in this directory contain detailed technical specifications and must be consulted during planning and implementation:\n- SPEEDSTEIN_TECHNICAL_SPEC.md\n- SPEEDSTEIN_API_REFERENCE.md\n- SPEEDSTEIN_IMPLEMENTATION_PLAN.md\n- SPEEDSTEIN_TECHSTACK.md)",
+      "SlashCommand(/speckit.constitution:*)",
+      "Bash(if [ -d \"specs\" ])",
+      "Bash(then ls -1 specs)",
+      "Bash(else echo \"No specs directory\")",
+      "Bash(fi)",
+      "Bash(powershell.exe -File:*)",
+      "Bash(if [ -d \"C:/coding/speedstein/specs/001-pdf-api-platform/checklists\" ])",
+      "Bash(then ls -1 \"C:/coding/speedstein/specs/001-pdf-api-platform/checklists\")",
+      "Bash(else echo \"No checklists directory\")",
+      "Bash(git rev-parse:*)",
+      "Bash(pnpm:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

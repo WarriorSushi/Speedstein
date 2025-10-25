@@ -31,7 +31,76 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+### Performance Requirements (Principle I)
+- [ ] Feature design supports P95 latency <2s for PDF generation
+- [ ] Browser session reuse strategy documented (no cold starts)
+- [ ] Chrome instance warming approach defined
+- [ ] Promise pipelining identified for batch operations
+- [ ] No blocking operations in critical path
+
+### Security & Authentication (Principle II)
+- [ ] API keys will be SHA-256 hashed before storage
+- [ ] No plaintext secrets in code or configuration
+- [ ] RLS policies defined for all Supabase tables
+- [ ] Rate limiting strategy documented for endpoints
+- [ ] CORS configuration specified
+- [ ] Environment variables identified for all secrets
+
+### Design System Standards (Principle III)
+- [ ] All colors use OKLCH color space (no RGB/HSL/hex)
+- [ ] WCAG AAA contrast compliance verified (7:1 normal, 4.5:1 large)
+- [ ] Elevation system uses OKLCH lightness manipulation
+- [ ] Only shadcn/ui components used (no other UI libraries)
+
+### Technology Stack (Principle IV)
+- [ ] Frontend uses Next.js 15 with App Router
+- [ ] Backend uses Cloudflare Workers
+- [ ] RPC uses Cap'n Web for PDF generation
+- [ ] Database uses Supabase with RLS
+- [ ] Payments use DodoPayments
+- [ ] Styling uses Tailwind CSS with OKLCH tokens
+
+### Code Quality (Principle V)
+- [ ] TypeScript strict mode enabled
+- [ ] Error handling strategy documented
+- [ ] No console.log in production code paths
+- [ ] Zod schemas defined for API validation
+- [ ] Browser instance disposal strategy documented
+
+### Cap'n Web Best Practices (Principle VI)
+- [ ] Server classes extend RpcTarget
+- [ ] Promise pipelining strategy documented
+- [ ] Resource disposal using 'using' keyword or Symbol.dispose()
+- [ ] WebSocket heartbeat mechanism planned
+- [ ] No event loop blocking operations
+
+### User Experience (Principle VII)
+- [ ] Landing page load time target <2s (LCP)
+- [ ] Live demo works without authentication
+- [ ] Dark mode support included
+- [ ] Mobile-responsive design (breakpoints: 640/768/1024/1280px)
+- [ ] Lighthouse score target 95+ documented
+
+### Testing & Quality (Principle VIII)
+- [ ] Unit tests planned for business logic
+- [ ] Integration tests planned for API endpoints
+- [ ] E2E tests planned for user flows
+- [ ] 80%+ code coverage target for services/models
+- [ ] Link validation strategy documented
+
+### Documentation (Principle IX)
+- [ ] API endpoints will be documented in SPEEDSTEIN_API_REFERENCE.md
+- [ ] Code examples planned for JS, Python, PHP, Ruby
+- [ ] README updates identified
+- [ ] Complex logic will have inline comments
+- [ ] Public functions will have JSDoc/TSDoc
+
+### Deployment & Operations (Principle X)
+- [ ] Zero-downtime deployment strategy documented
+- [ ] Sentry error tracking configured
+- [ ] 99.9% uptime monitoring planned
+- [ ] Structured logging for critical operations
+- [ ] Environment variables for configuration
 
 ## Project Structure
 

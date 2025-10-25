@@ -1,0 +1,21 @@
+name = "speedstein-worker"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[env.production]
+name = "speedstein-worker-production"
+route = "api.speedstein.com/*"
+
+[env.staging]
+name = "speedstein-worker-staging"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "placeholder_kv_id"
+
+[[r2_buckets]]
+binding = "PDF_STORAGE"
+bucket_name = "speedstein-pdfs"
+
+[[browser]]
+binding = "BROWSER"
