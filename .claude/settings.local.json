@@ -22,7 +22,11 @@
       "Bash(mkdir:*)",
       "Bash(cp:*)",
       "Bash(supabase start:*)",
-      "Bash(supabase db reset:*)"
+      "Bash(supabase db reset:*)",
+      "Bash(supabase link:*)",
+      "Bash(supabase login:*)",
+      "Bash(export SUPABASE_ACCESS_TOKEN=\"sbp_9be882b48b79c61f03eac6c8ccf757fc728bfca0\")",
+      "Bash(supabase db push:*)"
     ],
     "deny": [],
     "ask": []
