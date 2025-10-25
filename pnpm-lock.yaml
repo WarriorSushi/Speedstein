@@ -32,6 +32,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.39.0
         version: 2.76.1
+      capnp-ts:
+        specifier: ^0.7.0
+        version: 0.7.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

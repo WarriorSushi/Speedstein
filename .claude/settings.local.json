@@ -15,7 +15,9 @@
       "Bash(git rev-parse:*)",
       "Bash(pnpm:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(supabase --version:*)",
+      "Bash(docker:*)"
     ],
     "deny": [],
     "ask": []
