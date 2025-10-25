@@ -23,16 +23,16 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize pnpm workspace at repository root with pnpm-workspace.yaml
-- [ ] T002 Create Next.js 15 app with App Router in apps/web using create-next-app@latest --app --typescript
-- [ ] T003 [P] Initialize Cloudflare Worker project in apps/worker using wrangler init
-- [ ] T004 [P] Create shared packages: packages/shared (types) and packages/database (migrations)
-- [ ] T005 [P] Configure TypeScript strict mode in all tsconfig.json files (apps/web, apps/worker, packages/shared)
+- [X] T001 Initialize pnpm workspace at repository root with pnpm-workspace.yaml
+- [X] T002 Create Next.js 15 app with App Router in apps/web using create-next-app@latest --app --typescript
+- [X] T003 [P] Initialize Cloudflare Worker project in apps/worker using wrangler init
+- [X] T004 [P] Create shared packages: packages/shared (types) and packages/database (migrations)
+- [X] T005 [P] Configure TypeScript strict mode in all tsconfig.json files (apps/web, apps/worker, packages/shared)
 - [ ] T006 [P] Setup ESLint and Prettier with consistent rules across all packages
 - [ ] T007 [P] Install core dependencies: Tailwind CSS, shadcn/ui, Supabase client, capnweb (Cap'n Web), Zod, DodoPayments SDK
-- [ ] T008 Create .env.example files in apps/web and apps/worker with all required environment variables
+- [X] T008 Create .env.example files in apps/web and apps/worker with all required environment variables
 - [ ] T009 [P] Setup Vitest for unit tests in apps/worker and packages/shared
-- [ ] T010 [P] Setup Playwright for E2E tests in tests/e2e directory
+- [X] T010 [P] Setup Playwright for E2E tests in tests/e2e directory
 
 ---
 
@@ -42,23 +42,23 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T011 Create Supabase project and save SUPABASE_URL and SUPABASE_ANON_KEY to environment variables
-- [ ] T012 Create database migration 001_initial_schema.sql in packages/database/migrations for users, api_keys, subscriptions, usage_quotas, usage_records, invoices tables
-- [ ] T013 Create database migration 002_rls_policies.sql in packages/database/migrations with RLS policies for all tables
-- [ ] T014 Create database migration 003_indexes.sql in packages/database/migrations with performance indexes
-- [ ] T015 [P] Run database migrations against Supabase project using Supabase CLI
-- [ ] T016 [P] Generate TypeScript types from database schema in packages/database/types.ts using Supabase CLI
-- [ ] T017 Create Supabase client utility in packages/shared/src/lib/supabase.ts with proper typing
-- [ ] T018 Setup Cloudflare account and create R2 bucket for PDF storage
-- [ ] T019 [P] Setup Cloudflare KV namespace for rate limiting cache
-- [ ] T020 [P] Configure Cloudflare Browser Rendering API binding in wrangler.toml
-- [ ] T021 Create shared TypeScript types in packages/shared/src/types/api.ts (PdfOptions, PdfResult, ApiError)
-- [ ] T022 [P] Create shared Zod schemas in packages/shared/src/lib/validation.ts (GeneratePdfSchema, CreateApiKeySchema)
-- [ ] T023 [P] Setup Tailwind CSS config in apps/web/tailwind.config.ts with OKLCH color system tokens
-- [ ] T024 [P] Initialize shadcn/ui and add core components: Button, Card, Input, Label, Select, Dialog, Toast to apps/web/src/components/ui
-- [ ] T025 Create globals.css in apps/web/src/styles with OKLCH CSS custom properties for light and dark themes
-- [ ] T026 [P] Configure next-themes provider in apps/web/src/app/providers.tsx for dark mode support
-- [ ] T027 Setup Sentry for error tracking in both apps/web and apps/worker with source maps
+- [ ] T011 Create Supabase project and save SUPABASE_URL and SUPABASE_ANON_KEY to environment variables (MANUAL - User must do)
+- [X] T012 Create database migration 001_initial_schema.sql in packages/database/migrations for users, api_keys, subscriptions, usage_quotas, usage_records, invoices tables
+- [X] T013 Create database migration 002_rls_policies.sql in packages/database/migrations with RLS policies for all tables
+- [X] T014 Create database migration 003_indexes.sql in packages/database/migrations with performance indexes
+- [ ] T015 [P] Run database migrations against Supabase project using Supabase CLI (MANUAL - Depends on T011)
+- [ ] T016 [P] Generate TypeScript types from database schema in packages/database/types.ts using Supabase CLI (MANUAL - Depends on T015)
+- [X] T017 Create Supabase client utility in packages/shared/src/lib/supabase.ts with proper typing
+- [ ] T018 Setup Cloudflare account and create R2 bucket for PDF storage (MANUAL - User must do)
+- [ ] T019 [P] Setup Cloudflare KV namespace for rate limiting cache (MANUAL - User must do)
+- [ ] T020 [P] Configure Cloudflare Browser Rendering API binding in wrangler.toml (MANUAL - User must do)
+- [X] T021 Create shared TypeScript types in packages/shared/src/types/api.ts (PdfOptions, PdfResult, ApiError)
+- [X] T022 [P] Create shared Zod schemas in packages/shared/src/lib/validation.ts (GeneratePdfSchema, CreateApiKeySchema)
+- [X] T023 [P] Setup Tailwind CSS config in apps/web/tailwind.config.ts with OKLCH color system tokens
+- [X] T024 [P] Initialize shadcn/ui and add core components: Button, Card, Input, Label, Select, Dialog, Toast to apps/web/src/components/ui
+- [X] T025 Create globals.css in apps/web/src/styles with OKLCH CSS custom properties for light and dark themes
+- [X] T026 [P] Configure next-themes provider in apps/web/src/app/providers.tsx for dark mode support
+- [ ] T027 Setup Sentry for error tracking in both apps/web and apps/worker with source maps (MANUAL - User must do)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
