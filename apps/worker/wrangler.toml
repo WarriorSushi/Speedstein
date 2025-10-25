@@ -17,6 +17,7 @@ preview_id = "c7c30649626b482bbd08001d64b0f8ea"  # speedstein-rate-limit-preview
 [[r2_buckets]]
 binding = "PDF_STORAGE"
 bucket_name = "speedstein-pdfs-dev"
+preview_bucket_name = "speedstein-pdfs-preview"
 # Jurisdiction-specific endpoint: https://d0bd6c8419b815cd8b9ce41f5175b29e.r2.cloudflarestorage.com
 # Credentials in .dev.vars for local development (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY)
 
