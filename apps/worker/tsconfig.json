@@ -14,8 +14,8 @@
     "types": ["@cloudflare/workers-types"],
     "paths": {
       "@/*": ["./src/*"],
-      "@speedstein/shared": ["../../packages/shared/src"],
-      "@speedstein/database": ["../../packages/database/src"]
+      "@speedstein/shared/*": ["../../packages/shared/src/*"],
+      "@speedstein/database/*": ["../../packages/database/src/*"]
     }
   },
   "include": ["src/**/*.ts"],
