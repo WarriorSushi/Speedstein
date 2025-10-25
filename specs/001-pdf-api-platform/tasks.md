@@ -29,7 +29,7 @@
 - [ ] T004 [P] Create shared packages: packages/shared (types) and packages/database (migrations)
 - [ ] T005 [P] Configure TypeScript strict mode in all tsconfig.json files (apps/web, apps/worker, packages/shared)
 - [ ] T006 [P] Setup ESLint and Prettier with consistent rules across all packages
-- [ ] T007 [P] Install core dependencies: Tailwind CSS, shadcn/ui, Supabase client, Cap'n Web, Zod, DodoPayments SDK
+- [ ] T007 [P] Install core dependencies: Tailwind CSS, shadcn/ui, Supabase client, capnweb (Cap'n Web), Zod, DodoPayments SDK
 - [ ] T008 Create .env.example files in apps/web and apps/worker with all required environment variables
 - [ ] T009 [P] Setup Vitest for unit tests in apps/worker and packages/shared
 - [ ] T010 [P] Setup Playwright for E2E tests in tests/e2e directory

@@ -278,10 +278,10 @@ A team lead manages a Speedstein account for their organization. They create sep
 
 ## Assumptions
 
-1. **Chrome Rendering API**: Assuming Cloudflare Browser Rendering API or equivalent Chrome-based service is available and meets performance requirements for P95 <2s latency
+1. **Chrome Rendering API**: Assuming Cloudflare Browser Rendering API or equivalent Chrome-based service is available and meets performance requirements for P95 <2s latency. **Validation**: Must achieve <1.5s P95 render time in load test with 100 concurrent requests rendering 50KB HTML with CSS Grid/Flexbox
 2. **DodoPayments Integration**: Assuming DodoPayments provides webhook support for subscription events (payment.succeeded, payment.failed, subscription.canceled) with retry mechanism
 3. **Supabase Scalability**: Assuming Supabase can handle expected load (10K+ users, 1M+ API calls/month) with acceptable query performance for RLS-enabled tables
-4. **Cap'n Web Stability**: Assuming Cap'n Web protocol is production-ready for WebSocket RPC with promise pipelining and adequate documentation exists
+4. **Cap'n Web Stability**: Assuming Cap'n Web protocol is production-ready for WebSocket RPC with promise pipelining and adequate documentation exists. **Validation**: Must have 3+ documented production examples with promise pipelining patterns in capnweb npm package README and GitHub repository or official Cloudflare docs, with TypeScript type support
 5. **OKLCH Browser Support**: Assuming OKLCH color space has sufficient browser support (95%+ of target users on modern browsers) or graceful fallbacks exist
 6. **Monaco Editor Performance**: Assuming Monaco code editor performs well on landing page without significantly impacting LCP (<2s load time requirement)
 7. **R2 Storage Limits**: Assuming Cloudflare R2 storage costs and limits are acceptable for storing generated PDFs (with TTL-based cleanup after 30 days)
