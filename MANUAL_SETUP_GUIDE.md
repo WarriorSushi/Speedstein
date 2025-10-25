@@ -1,10 +1,10 @@
-# Manual Setup Guide: Remaining Configuration
+# Manual Setup Guide: Optional Configuration
 
-This guide covers the remaining manual setup tasks (T020, T027) required to configure external services for the Speedstein PDF API platform.
+This guide covers the remaining optional setup task (T027) for the Speedstein PDF API platform.
 
-## ✅ Already Completed
+## ✅ All Critical Infrastructure Complete!
 
-The following tasks have already been completed:
+All required infrastructure for PDF generation is now configured and ready:
 
 **Supabase (T011, T015, T016):**
 - ✅ **T011**: Supabase project created (Project ID: `czvvgfprjlkahobgncxo`)
@@ -22,6 +22,12 @@ The following tasks have already been completed:
 - ✅ Production namespace: `speedstein-rate-limit-dev` (ID: `22a4d1624e4848ed9fdcc541bcf7ab39`)
 - ✅ Preview namespace: `speedstein-rate-limit-preview` (ID: `c7c30649626b482bbd08001d64b0f8ea`)
 - ✅ Configured in `wrangler.toml` with binding `RATE_LIMIT_KV`
+
+**Cloudflare Browser Rendering API (T020):**
+- ✅ **T020**: Workers Paid plan activated ($5/month)
+- ✅ Browser Rendering API enabled
+- ✅ Configured in `wrangler.toml` with binding `BROWSER`
+- ✅ Includes 1 million requests/month
 
 Environment variables are configured in `.env.local` and `.dev.vars` files (git-ignored).
 
@@ -83,44 +89,17 @@ Before starting, ensure you have:
 
 ---
 
-### T020: Configure Cloudflare Browser Rendering API
+### ~~T020: Configure Cloudflare Browser Rendering API~~ ✅ COMPLETED
 
-1. **Enable Browser Rendering API**
+**Status**: Browser Rendering API is fully enabled and configured.
+- Workers Paid plan: Active ($5/month)
+- Browser API: Enabled
+- Binding in wrangler.toml: `BROWSER`
+- Included: 1 million requests/month
+- Additional requests: $0.50 per million
+- Available in Worker as: `env.BROWSER`
 
-   The Browser Rendering API is available on:
-   - **Workers Paid plan** ($5/month + usage)
-   - Includes 1 million requests/month
-   - Additional requests: $0.50 per million
-
-2. **Upgrade to Workers Paid Plan**
-
-   In Cloudflare Dashboard:
-   - Go to "Workers & Pages"
-   - Click "Plans" tab
-   - Click "Upgrade" next to "Workers Paid"
-   - Confirm payment method
-   - Click "Confirm"
-
-3. **Enable Browser Rendering**
-
-   ```bash
-   # Login to Wrangler (Cloudflare CLI)
-   npx wrangler login
-
-   # This will open browser for authentication
-   ```
-
-4. **Update wrangler.toml**
-
-   Open `apps/worker/wrangler.toml` and add:
-   ```toml
-   [browser]
-   binding = "BROWSER"
-   ```
-
-5. **Verify Browser Rendering Access**
-
-   The browser binding will be automatically available in your Worker environment as `env.BROWSER`.
+The API is ready for PDF generation using `env.BROWSER.newPage()`.
 
 ---
 
@@ -260,17 +239,18 @@ Before starting, ensure you have:
 
 ## Summary Checklist
 
-**Completed:**
+**🎉 All Critical Infrastructure Complete! (21/22 Phase 2 tasks)**
+
 - [X] **T011**: Supabase project created, environment variables set ✅
 - [X] **T015**: Database migrations executed successfully ✅
 - [X] **T016**: TypeScript types can be generated (command provided above) ✅
 - [X] **T018**: Cloudflare R2 bucket created and configured ✅
 - [X] **T019**: Cloudflare KV namespaces created and configured ✅
+- [X] **T020**: Cloudflare Browser Rendering API enabled (Workers Paid plan) ✅
 
-**Remaining tasks:**
-- [ ] **T020**: Cloudflare Browser Rendering API enabled (Workers Paid plan) - **REQUIRED FOR PDF GENERATION**
-- [ ] **T027**: Sentry projects created and SDKs configured (optional for development)
-- [ ] **DodoPayments**: API keys obtained and configured (optional for testing)
+**Optional remaining tasks:**
+- [ ] **T027**: Sentry projects created and SDKs configured (optional for development/production)
+- [ ] **DodoPayments**: API keys obtained and configured (optional for testing payments)
 
 ---
 
