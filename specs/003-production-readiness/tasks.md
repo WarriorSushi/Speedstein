@@ -332,7 +332,7 @@ This task list implements the Production Readiness feature, addressing critical 
 - [X] T097 [P] Verify all TypeScript compilation passes (pnpm run check in apps/worker and apps/web)
 - [X] T098 [P] Verify all environment variables documented in .env.example files
 - [X] T099 Update README.md with quickstart guide reference (link to specs/003-production-readiness/quickstart.md)
-- [ ] T100 Test end-to-end flow: Sign up → Create API key → Generate PDF → Access URL
+- [X] T100 Test end-to-end flow: Sign up → Create API key → Generate PDF → Access URL
 - [ ] T101 Deploy Worker to production (pnpm run deploy in apps/worker)
 - [ ] T102 Deploy Frontend to Cloudflare Pages (connect GitHub repo or wrangler pages deploy)
 
