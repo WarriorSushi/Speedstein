@@ -21,12 +21,12 @@ This task list implements the Production Readiness feature, addressing critical 
 **Goal**: Initialize project dependencies and verify environment setup
 
 **Tasks**:
-- [ ] T001 Install Supabase CLI and verify version (supabase --version)
-- [ ] T002 [P] Start local Supabase instance via Docker (supabase start)
-- [ ] T003 [P] Verify R2 bucket exists (npx wrangler r2 bucket list | grep speedstein-pdfs)
-- [ ] T004 [P] Install frontend dependencies if apps/web/package.json doesn't exist
-- [ ] T005 [P] Verify Node.js 18.17+ and pnpm 9.x installed
-- [ ] T006 Create feature branch if not already on 003-production-readiness (git checkout -b 003-production-readiness)
+- [X] T001 Install Supabase CLI and verify version (supabase --version)
+- [X] T002 [P] Start local Supabase instance via Docker (supabase start)
+- [X] T003 [P] Verify R2 bucket exists (npx wrangler r2 bucket list | grep speedstein-pdfs)
+- [X] T004 [P] Install frontend dependencies if apps/web/package.json doesn't exist
+- [X] T005 [P] Verify Node.js 18.17+ and pnpm 9.x installed
+- [X] T006 Create feature branch if not already on 003-production-readiness (git checkout -b 003-production-readiness)
 
 **Parallel Execution**: T002, T003, T004, T005 can run concurrently (independent environment checks)
 
@@ -47,18 +47,18 @@ This task list implements the Production Readiness feature, addressing critical 
 **Independent Test**: Run migration script, insert sample data, query tables with RLS policies to verify access control works.
 
 **Tasks**:
-- [ ] T007 Create migration file at supabase/migrations/20251026_production_readiness.sql
-- [ ] T008 [US1] Copy SQL from specs/003-production-readiness/data-model.md "Migration Script" section into migration file
-- [ ] T009 [US1] Apply migration to local database (supabase db reset)
-- [ ] T010 [US1] Verify all 4 tables created (psql query: SELECT tablename FROM pg_tables WHERE schemaname = 'public')
-- [ ] T011 [US1] Verify RLS enabled on all tables (psql query: SELECT tablename, rowsecurity FROM pg_tables)
-- [ ] T012 [US1] Verify indexes created (psql query: SELECT indexname, tablename FROM pg_indexes WHERE schemaname = 'public')
+- [X] T007 Create migration file at supabase/migrations/20251026_production_readiness.sql
+- [X] T008 [US1] Copy SQL from specs/003-production-readiness/data-model.md "Migration Script" section into migration file
+- [X] T009 [US1] Apply migration to local database (supabase db reset)
+- [X] T010 [US1] Verify all 4 tables created (psql query: SELECT tablename FROM pg_tables WHERE schemaname = 'public')
+- [X] T011 [US1] Verify RLS enabled on all tables (psql query: SELECT tablename, rowsecurity FROM pg_tables)
+- [X] T012 [US1] Verify indexes created (psql query: SELECT indexname, tablename FROM pg_indexes WHERE schemaname = 'public')
 - [ ] T013 [US1] Insert test user in users table (id: 00000000-0000-0000-0000-000000000001, email: test@speedstein.com)
 - [ ] T014 [US1] Insert test subscription for test user (plan_id: free, status: active, period: NOW to NOW+30 days)
 - [ ] T015 [US1] Insert test API key for test user (key_hash: SHA-256 of "test-key-12345", key_prefix: sk_test_abc)
 - [ ] T016 [US1] Test RLS policy by attempting cross-user query (should return 0 rows)
-- [ ] T017 [US1] Link to production Supabase project (supabase link --project-ref YOUR_REF)
-- [ ] T018 [US1] Deploy migration to production (supabase db push) - ONLY when ready for production
+- [X] T017 [US1] Link to production Supabase project (supabase link --project-ref YOUR_REF)
+- [X] T018 [US1] Deploy migration to production (supabase db push) - ONLY when ready for production
 
 **Parallel Execution**: T007-T008 are sequential. T013-T015 can run in parallel after T012 completes.
 
@@ -84,12 +84,12 @@ This task list implements the Production Readiness feature, addressing critical 
 **Independent Test**: Call `hashApiKey('sk_test_abc123')` and verify it returns a SHA-256 hash without errors. Use hash to query api_keys table.
 
 **Tasks**:
-- [ ] T019 [US3] Locate hashApiKey() function in apps/worker/src/lib/crypto.ts
-- [ ] T020 [US3] Change crypto.subtle.digestSync to crypto.subtle.digest in apps/worker/src/lib/crypto.ts
-- [ ] T021 [US3] Add await before crypto.subtle.digest() call in apps/worker/src/lib/crypto.ts
-- [ ] T022 [US3] Make hashApiKey() function async in apps/worker/src/lib/crypto.ts
+- [X] T019 [US3] Locate hashApiKey() function in apps/worker/src/lib/crypto.ts
+- [X] T020 [US3] Change crypto.subtle.digestSync to crypto.subtle.digest in apps/worker/src/lib/crypto.ts
+- [X] T021 [US3] Add await before crypto.subtle.digest() call in apps/worker/src/lib/crypto.ts
+- [X] T022 [US3] Make hashApiKey() function async in apps/worker/src/lib/crypto.ts
 - [ ] T023 [US3] Update all callers of hashApiKey() to use await in apps/worker/src/middleware/auth.ts
-- [ ] T024 [P] [US3] Update AuthService.validateApiKey() to await hashApiKey() in apps/worker/src/services/auth.service.ts
+- [X] T024 [P] [US3] Update AuthService.validateApiKey() to await hashApiKey() in apps/worker/src/services/auth.service.ts
 - [ ] T025 [P] [US3] Update any API key creation endpoints to await hashApiKey() in apps/worker/src/index.ts
 - [ ] T026 [US3] Test hashApiKey('sk_test_abc123') returns 64-character hex string (add console.log or debugger)
 - [ ] T027 [US3] Verify TypeScript compiles without errors (pnpm run check in apps/worker)
@@ -162,8 +162,8 @@ This task list implements the Production Readiness feature, addressing critical 
 **Independent Test**: Read pricing-config.ts and verify `PRICING_TIERS.enterprise.quota === 500000`. Test quota check with Enterprise user.
 
 **Tasks**:
-- [ ] T043 [US4] Locate PRICING_TIERS object in apps/worker/src/lib/pricing-config.ts
-- [ ] T044 [US4] Change enterprise.quota from 200000 to 500000 in apps/worker/src/lib/pricing-config.ts
+- [X] T043 [US4] Locate PRICING_TIERS object in apps/worker/src/lib/pricing-config.ts
+- [X] T044 [US4] Change enterprise.quota from 200000 to 500000 in apps/worker/src/lib/pricing-config.ts
 - [ ] T045 [US4] Verify QuotaService uses PRICING_TIERS.enterprise.quota in apps/worker/src/services/quota.service.ts
 - [ ] T046 [US4] Test quota check by creating test Enterprise user and generating 200,001 PDFs (should succeed, not quota exceeded)
 - [ ] T047 [US4] Document pricing correction in CHANGELOG.md or add migration note
