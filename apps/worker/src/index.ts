@@ -12,12 +12,20 @@ import { cors } from 'hono/cors';
 import { PdfService } from './services/pdf.service';
 import { AuthService } from './services/auth.service';
 import { QuotaService } from './services/quota.service';
-import { BrowserPool } from './lib/browser-pool';
+import { SimpleBrowserService } from './lib/browser';
 import { RateLimiter } from './middleware/rate-limit';
 import { uploadPdfToR2, generatePdfFileName } from './lib/r2';
 import { createLogger } from './lib/logger';
-import { generateRequestId } from './lib/crypto';
+import { generateRequestId, hashHtmlContent } from './lib/crypto';
 import { GeneratePdfSchema } from '@speedstein/shared/lib/validation';
+import { handleWebSocketUpgrade } from './middleware/websocket';
+import {
+  createDurableObjectContext,
+  generatePdfThroughDO,
+  isDurableObjectsEnabled,
+  logDurableObjectMetrics,
+  extractUserIdForRouting,
+} from './middleware/durable-object-routing';
 import {
   UnauthorizedError,
   QuotaExceededError,
@@ -25,6 +33,9 @@ import {
   ValidationError,
 } from '@speedstein/shared/lib/errors';
 import type { PdfOptions } from '@speedstein/shared/types/pdf';
+
+// Export Durable Object class for Cloudflare Workers runtime
+export { BrowserPoolDO } from './durable-objects/BrowserPoolDO';
 
 /**
  * Environment bindings for Cloudflare Worker
@@ -38,6 +49,9 @@ type Bindings = {
 
   /** Browser rendering binding */
   BROWSER: Fetcher;
+
+  /** Durable Object namespace for browser session pooling */
+  BROWSER_POOL_DO: DurableObjectNamespace;
 
   /** Supabase URL */
   SUPABASE_URL: string;
@@ -54,17 +68,16 @@ type Bindings = {
  */
 const app = new Hono<{ Bindings: Bindings }>();
 
-// Global browser pool (initialized on first request)
-let browserPool: BrowserPool | null = null;
-
 /**
- * Initialize browser pool lazily
+ * Create browser service for this request
+ *
+ * Note: Each request gets a fresh browser instance for now.
+ * Future: Move to Durable Objects for proper session pooling.
  */
-function getBrowserPool(env: Bindings): BrowserPool {
-  if (!browserPool) {
-    browserPool = new BrowserPool(env.BROWSER);
-  }
-  return browserPool;
+function getBrowserService(env: Bindings): SimpleBrowserService {
+  return new SimpleBrowserService({
+    browserBinding: env.BROWSER,
+  });
 }
 
 /**
@@ -89,6 +102,31 @@ app.get('/health', (c) => {
     timestamp: new Date().toISOString(),
     service: 'speedstein-api',
   });
+});
+
+/**
+ * GET /api/rpc - WebSocket RPC endpoint for Cap'n Web
+ *
+ * Upgrades HTTP connection to WebSocket for high-performance batch PDF generation.
+ * Uses Cap'n Web promise pipelining to achieve 100+ PDFs/min throughput.
+ *
+ * @route GET /api/rpc
+ * @websocket
+ *
+ * @example
+ * ```javascript
+ * const ws = new WebSocket('wss://api.speedstein.com/api/rpc?userId=user_123');
+ * ws.onopen = () => {
+ *   // Send RPC request
+ *   ws.send(JSON.stringify({
+ *     method: 'generatePdf',
+ *     params: { html: '<h1>Test</h1>', options: {} }
+ *   }));
+ * };
+ * ```
+ */
+app.get('/api/rpc', async (c) => {
+  return handleWebSocketUpgrade(c.req.raw, c.env);
 });
 
 /**
@@ -132,7 +170,7 @@ app.post('/api/generate', async (c) => {
     const validationResult = GeneratePdfSchema.safeParse(body);
 
     if (!validationResult.success) {
-      throw new ValidationError('Invalid request body', validationResult.error.errors);
+      throw new ValidationError('Invalid request body', validationResult.error.errors as any);
     }
 
     const { html, options } = validationResult.data;
@@ -142,9 +180,12 @@ app.post('/api/generate', async (c) => {
       c.env.SUPABASE_URL,
       c.env.SUPABASE_SERVICE_ROLE_KEY
     );
-    const quotaService = new QuotaService(authService['supabase']); // Access private supabase client
-    const pool = getBrowserPool(c.env);
-    const pdfService = new PdfService(pool);
+    // Create Supabase client for quota service
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_SERVICE_ROLE_KEY);
+    const quotaService = new QuotaService(supabase);
+    const browserService = getBrowserService(c.env);
+    const pdfService = new PdfService(browserService);
 
     // 4. Authenticate API key
     const authContext = await authService.validateApiKey(apiKey);
@@ -189,23 +230,90 @@ app.post('/api/generate', async (c) => {
 
     if (!quotaCheck.allowed) {
       throw new QuotaExceededError(
-        `Quota exceeded. Used ${quotaCheck.used}/${quotaCheck.quota} PDFs this period.`,
-        {
-          quota: quotaCheck.quota,
-          used: quotaCheck.used,
-          remaining: quotaCheck.remaining,
-          resetDate: quotaCheck.resetDate,
-        }
+        quotaCheck.quota,
+        quotaCheck.used,
+        quotaCheck.resetDate
       );
     }
 
-    // 7. Generate PDF
+    // 7. Generate PDF via Durable Objects (with fallback to SimpleBrowserService)
     const pdfGenStartTime = Date.now();
-    const pdfResult = await pdfService.generatePdf(html, options, {
-      userId: authContext.userId,
-      apiKeyId: authContext.apiKeyId,
-      requestId,
-    });
+    let pdfResult;
+    let usedDurableObjects = false;
+
+    // Check if Durable Objects routing is enabled (feature flag)
+    const doEnabled = isDurableObjectsEnabled(c.env);
+
+    if (doEnabled && c.env.BROWSER_POOL_DO) {
+      try {
+        // Create Durable Object context for user routing
+        const userId = extractUserIdForRouting(authContext);
+        const doContext = createDurableObjectContext(
+          userId,
+          c.env.BROWSER_POOL_DO,
+          doEnabled
+        );
+
+        logger.info('Routing PDF generation through Durable Objects', {
+          userId,
+          doId: doContext.doId,
+          requestId,
+        });
+
+        // Generate PDF through Durable Object
+        const doResult = await generatePdfThroughDO(doContext, html, options);
+
+        if (doResult.success && doResult.pdfBuffer) {
+          // Success! Use DO result
+          usedDurableObjects = true;
+          pdfResult = {
+            pdfBuffer: doResult.pdfBuffer,
+            generationTime: doResult.generationTime || 0,
+            htmlHash: hashHtmlContent(html),
+            htmlSize: new TextEncoder().encode(html).length,
+            pdfSize: doResult.pdfBuffer.byteLength,
+          };
+
+          logDurableObjectMetrics(doContext, doResult.generationTime || 0, logger);
+        } else {
+          // DO failed - fall back to SimpleBrowserService
+          logger.warn('Durable Objects PDF generation failed, falling back to SimpleBrowserService', {
+            error: doResult.error,
+            requestId,
+          });
+
+          pdfResult = await pdfService.generatePdf(html, options, {
+            userId: authContext.userId,
+            apiKeyId: authContext.apiKeyId,
+            requestId,
+          });
+        }
+      } catch (doError) {
+        // DO error - fall back to SimpleBrowserService
+        logger.warn('Durable Objects error, falling back to SimpleBrowserService', {
+          error: doError instanceof Error ? doError.message : 'Unknown error',
+          requestId,
+        });
+
+        pdfResult = await pdfService.generatePdf(html, options, {
+          userId: authContext.userId,
+          apiKeyId: authContext.apiKeyId,
+          requestId,
+        });
+      }
+    } else {
+      // Durable Objects disabled or not available - use SimpleBrowserService
+      logger.info('Using SimpleBrowserService (Durable Objects disabled or unavailable)', {
+        requestId,
+      });
+
+      pdfResult = await pdfService.generatePdf(html, options, {
+        userId: authContext.userId,
+        apiKeyId: authContext.apiKeyId,
+        requestId,
+      });
+    }
+
     const pdfGenTime = Date.now() - pdfGenStartTime;
 
     // 8. Upload to R2
@@ -312,7 +420,7 @@ app.post('/api/generate', async (c) => {
           error: {
             code: 'QUOTA_EXCEEDED',
             message: error.message,
-            ...error.quotaInfo,
+            ...error.details,
           },
           requestId,
         },
@@ -337,7 +445,7 @@ app.post('/api/generate', async (c) => {
         },
         429,
         {
-          'Retry-After': error.retryAfter?.toString() || '60',
+          'Retry-After': (error.details?.retryAfter as number)?.toString() || '60',
         }
       );
     }

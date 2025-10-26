@@ -19,7 +19,8 @@ import {
   PayloadTooLargeError,
 } from '@speedstein/shared/lib/errors';
 import { hashHtmlContent } from '../lib/crypto';
-import type { BrowserPool } from '../lib/browser-pool';
+import type { SimpleBrowserService } from '../lib/browser';
+import type { Browser } from '@cloudflare/puppeteer';
 
 /**
  * Puppeteer PDF options (internal format)
@@ -65,9 +66,10 @@ interface PdfGenerationResult {
  * PDF Service
  *
  * Handles PDF generation from HTML using Cloudflare Browser Rendering API.
+ * Uses SimpleBrowserService for per-request browser instances.
  */
 export class PdfService {
-  constructor(private browserPool: BrowserPool) {}
+  constructor(private browserService: SimpleBrowserService) {}
 
   /**
    * Generate a PDF from HTML content
@@ -75,6 +77,7 @@ export class PdfService {
    * @param html - HTML content to convert
    * @param options - PDF generation options
    * @param metadata - Request metadata (userId, apiKeyId, requestId)
+   * @param browser - Optional Browser instance from Durable Object pool (bypasses browserService)
    * @returns Generated PDF buffer and metadata
    * @throws BrowserError if PDF generation fails
    * @throws GenerationTimeoutError if generation exceeds timeout
@@ -83,7 +86,8 @@ export class PdfService {
   async generatePdf(
     html: string,
     options: PdfOptions | undefined,
-    metadata: Pick<PdfMetadata, 'userId' | 'apiKeyId' | 'requestId'>
+    metadata: Pick<PdfMetadata, 'userId' | 'apiKeyId' | 'requestId'>,
+    browser?: Browser
   ): Promise<PdfGenerationResult> {
     const startTime = Date.now();
 
@@ -100,21 +104,27 @@ export class PdfService {
     const htmlHash = hashHtmlContent(html);
     const htmlSize = new TextEncoder().encode(html).length;
 
-    let page: any = null;
-
     try {
-      // Get a browser page from the pool
-      page = await this.browserPool.getPage();
+      let pdfBuffer: ArrayBuffer;
 
-      // Set timeout for PDF generation
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new GenerationTimeoutError()), PDF_GENERATION_TIMEOUT_MS);
-      });
+      // Use provided Browser from DO pool or fall back to SimpleBrowserService
+      if (browser) {
+        // Browser from Durable Object pool - use directly
+        pdfBuffer = await this.generatePdfWithBrowser(browser, html, puppeteerOptions);
+      } else {
+        // Fall back to SimpleBrowserService (per-request browser)
+        pdfBuffer = await this.browserService.withPage(async (page) => {
+          // Set timeout for PDF generation
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new GenerationTimeoutError()), PDF_GENERATION_TIMEOUT_MS);
+          });
 
-      // Generate PDF with timeout
-      const pdfPromise = this.generatePdfWithPage(page, html, puppeteerOptions);
+          // Generate PDF with timeout
+          const pdfPromise = this.generatePdfWithPage(page, html, puppeteerOptions);
 
-      const pdfBuffer = (await Promise.race([pdfPromise, timeoutPromise])) as ArrayBuffer;
+          return (await Promise.race([pdfPromise, timeoutPromise])) as ArrayBuffer;
+        });
+      }
 
       const generationTime = Date.now() - startTime;
       const pdfSize = pdfBuffer.byteLength;
@@ -140,11 +150,42 @@ export class PdfService {
         requestId: metadata.requestId,
         error: errorMessage,
       });
-    } finally {
-      // Always release the page back to the pool
-      if (page) {
-        await this.browserPool.releasePage(page);
+    }
+  }
+
+  /**
+   * Generate PDF using a Browser instance from Durable Object pool
+   * Handles browser crashes and retries with error handling
+   * @private
+   */
+  private async generatePdfWithBrowser(
+    browser: Browser,
+    html: string,
+    options: PuppeteerPdfOptions
+  ): Promise<ArrayBuffer> {
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new GenerationTimeoutError()), PDF_GENERATION_TIMEOUT_MS);
+    });
+
+    try {
+      // Create new page from browser instance
+      const page = await browser.newPage();
+
+      try {
+        // Generate PDF with timeout
+        const pdfPromise = this.generatePdfWithPage(page, html, options);
+        const pdfBuffer = (await Promise.race([pdfPromise, timeoutPromise])) as ArrayBuffer;
+
+        return pdfBuffer;
+      } finally {
+        // Always close the page to free resources
+        await page.close();
       }
+    } catch (error) {
+      // Browser crashes are handled by Durable Object (automatic recycling)
+      // Rethrow error for caller to handle
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new BrowserError(`Browser pool PDF generation failed: ${errorMessage}`);
     }
   }
 

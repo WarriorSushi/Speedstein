@@ -28,6 +28,9 @@ export interface R2UploadOptions {
 
   /** Custom metadata to attach to the object */
   metadata?: Record<string, string>;
+
+  /** User's pricing tier for lifecycle tagging (free, starter, pro, enterprise) */
+  userTier?: string;
 }
 
 /**
@@ -76,14 +79,14 @@ export interface R2UploadResult {
  * ```
  */
 export async function uploadPdfToR2(options: R2UploadOptions): Promise<R2UploadResult> {
-  const { bucket, content, fileName, contentType = 'application/pdf', metadata = {} } = options;
+  const { bucket, content, fileName, contentType = 'application/pdf', metadata = {}, userTier } = options;
 
   try {
     // Calculate expiration date (30 days from now)
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + PDF_EXPIRATION_DAYS);
 
-    // Prepare R2 put options
+    // Prepare R2 put options with tier tagging for lifecycle policies
     const putOptions: R2PutOptions = {
       httpMetadata: {
         contentType,
@@ -91,6 +94,7 @@ export async function uploadPdfToR2(options: R2UploadOptions): Promise<R2UploadR
       },
       customMetadata: {
         ...metadata,
+        tier: userTier || 'free', // Add tier tag for lifecycle policy filtering
         expiresAt: expiresAt.toISOString(),
         uploadedAt: new Date().toISOString(),
       },

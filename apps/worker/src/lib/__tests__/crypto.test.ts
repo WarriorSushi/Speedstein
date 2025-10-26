@@ -10,70 +10,70 @@ import { hashApiKey, verifyApiKey, generateApiKey } from '../crypto';
 
 describe('crypto utility', () => {
   describe('hashApiKey', () => {
-    it('should hash API key using SHA-256', () => {
+    it('should hash API key using SHA-256', async () => {
       const apiKey = 'sk_test_abc123def456';
-      const hash = hashApiKey(apiKey);
+      const hash = await hashApiKey(apiKey);
 
       // SHA-256 produces 64 character hex string
       expect(hash).toHaveLength(64);
       expect(hash).toMatch(/^[a-f0-9]{64}$/);
     });
 
-    it('should produce consistent hashes for same input', () => {
+    it('should produce consistent hashes for same input', async () => {
       const apiKey = 'sk_test_abc123def456';
-      const hash1 = hashApiKey(apiKey);
-      const hash2 = hashApiKey(apiKey);
+      const hash1 = await hashApiKey(apiKey);
+      const hash2 = await hashApiKey(apiKey);
 
       expect(hash1).toBe(hash2);
     });
 
-    it('should produce different hashes for different inputs', () => {
+    it('should produce different hashes for different inputs', async () => {
       const apiKey1 = 'sk_test_abc123def456';
       const apiKey2 = 'sk_test_xyz789ghi012';
-      const hash1 = hashApiKey(apiKey1);
-      const hash2 = hashApiKey(apiKey2);
+      const hash1 = await hashApiKey(apiKey1);
+      const hash2 = await hashApiKey(apiKey2);
 
       expect(hash1).not.toBe(hash2);
     });
 
-    it('should handle empty string', () => {
-      const hash = hashApiKey('');
+    it('should handle empty string', async () => {
+      const hash = await hashApiKey('');
       expect(hash).toHaveLength(64);
       // SHA-256 of empty string is known value
       expect(hash).toBe('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
     });
 
-    it('should handle unicode characters', () => {
+    it('should handle unicode characters', async () => {
       const apiKey = 'sk_test_🔐🚀';
-      const hash = hashApiKey(apiKey);
+      const hash = await hashApiKey(apiKey);
       expect(hash).toHaveLength(64);
       expect(hash).toMatch(/^[a-f0-9]{64}$/);
     });
   });
 
   describe('verifyApiKey', () => {
-    it('should return true for matching API key and hash', () => {
+    it('should return true for matching API key and hash', async () => {
       const apiKey = 'sk_live_production123';
-      const hash = hashApiKey(apiKey);
+      const hash = await hashApiKey(apiKey);
 
-      expect(verifyApiKey(apiKey, hash)).toBe(true);
+      expect(await verifyApiKey(apiKey, hash)).toBe(true);
     });
 
-    it('should return false for non-matching API key and hash', () => {
+    it('should return false for non-matching API key and hash', async () => {
       const apiKey1 = 'sk_live_production123';
       const apiKey2 = 'sk_live_staging456';
-      const hash1 = hashApiKey(apiKey1);
+      const hash1 = await hashApiKey(apiKey1);
 
-      expect(verifyApiKey(apiKey2, hash1)).toBe(false);
+      expect(await verifyApiKey(apiKey2, hash1)).toBe(false);
     });
 
-    it('should return false for empty API key', () => {
-      const hash = hashApiKey('sk_test_abc123');
-      expect(verifyApiKey('', hash)).toBe(false);
+    it('should return false for empty API key', async () => {
+      const hash = await hashApiKey('sk_test_abc123');
+      expect(await verifyApiKey('', hash)).toBe(false);
     });
 
-    it('should return false for empty hash', () => {
-      expect(verifyApiKey('sk_test_abc123', '')).toBe(false);
+    it('should return false for empty hash', async () => {
+      expect(await verifyApiKey('sk_test_abc123', '')).toBe(false);
     });
   });
 

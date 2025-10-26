@@ -82,7 +82,7 @@ export class AuthService {
     }
 
     // Hash the API key for lookup
-    const keyHash = hashApiKey(apiKey);
+    const keyHash = await hashApiKey(apiKey);
 
     try {
       // Query database for API key with user and subscription data

@@ -1,6 +1,7 @@
 name = "speedstein-worker"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
 
 [env.production]
 name = "speedstein-worker-production"
@@ -23,3 +24,12 @@ preview_bucket_name = "speedstein-pdfs-preview"
 
 [browser]
 binding = "BROWSER"
+
+[[durable_objects.bindings]]
+name = "BROWSER_POOL_DO"
+class_name = "BrowserPoolDO"
+
+# Durable Objects migrations (required for deployment)
+[[migrations]]
+tag = "v1"
+new_classes = ["BrowserPoolDO"]

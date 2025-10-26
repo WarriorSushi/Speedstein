@@ -22,13 +22,13 @@
  * // Returns: 'a1b2c3d4e5f6...' (64 character hex string)
  * ```
  */
-export function hashApiKey(apiKey: string): string {
+export async function hashApiKey(apiKey: string): Promise<string> {
   // Use Web Crypto API (available in Cloudflare Workers)
   const encoder = new TextEncoder();
   const data = encoder.encode(apiKey);
 
-  // Create SHA-256 hash
-  const hashBuffer = crypto.subtle.digestSync('SHA-256', data);
+  // Create SHA-256 hash (async)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
 
   // Convert to hex string
   const hashArray = Array.from(new Uint8Array(hashBuffer));
@@ -54,12 +54,12 @@ export function hashApiKey(apiKey: string): string {
  * }
  * ```
  */
-export function verifyApiKey(apiKey: string, hash: string): boolean {
+export async function verifyApiKey(apiKey: string, hash: string): Promise<boolean> {
   if (!apiKey || !hash) {
     return false;
   }
 
-  const computedHash = hashApiKey(apiKey);
+  const computedHash = await hashApiKey(apiKey);
   return computedHash === hash;
 }
 
@@ -182,7 +182,7 @@ export function generateRequestId(): string {
  * // Can be used to check if this exact HTML was generated before
  * ```
  */
-export function hashHtmlContent(html: string): string {
+export async function hashHtmlContent(html: string): Promise<string> {
   return hashApiKey(html); // Reuse the same SHA-256 hashing logic
 }
 

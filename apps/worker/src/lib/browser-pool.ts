@@ -13,6 +13,7 @@
  * @packageDocumentation
  */
 
+import puppeteer from '@cloudflare/puppeteer';
 import { BrowserError } from '@speedstein/shared/lib/errors';
 
 /**
@@ -48,8 +49,8 @@ export interface BrowserPoolConfig {
   /** Maximum age for a page before forced recreation (milliseconds) */
   maxPageAge: number;
 
-  /** Puppeteer browser instance or launch function */
-  browser: any;
+  /** Cloudflare Browser Rendering binding (Fetcher) */
+  browserBinding: any;
 }
 
 /**
@@ -58,13 +59,17 @@ export interface BrowserPoolConfig {
  * Maintains a pool of warm Chrome browser pages for fast PDF generation.
  * Implements FIFO eviction and automatic cleanup.
  *
+ * Uses Cloudflare Browser Rendering API with @cloudflare/puppeteer.
+ *
  * @example
  * ```typescript
+ * import puppeteer from '@cloudflare/puppeteer';
+ *
  * const pool = new BrowserPool({
  *   poolSize: 8,
  *   maxIdleTime: 5 * 60 * 1000, // 5 minutes
  *   maxPageAge: 60 * 60 * 1000, // 1 hour
- *   browser: await puppeteer.launch(),
+ *   browserBinding: env.BROWSER,
  * });
  *
  * const page = await pool.getPage();
@@ -79,13 +84,14 @@ export class BrowserPool {
   private pool: PooledPage[] = [];
   private config: BrowserPoolConfig;
   private cleanupInterval: NodeJS.Timeout | null = null;
+  private browser: any = null; // Cloudflare Puppeteer browser instance
 
   constructor(config: BrowserPoolConfig) {
     this.config = {
       poolSize: config.poolSize ?? 8,
       maxIdleTime: config.maxIdleTime ?? 5 * 60 * 1000, // 5 minutes
       maxPageAge: config.maxPageAge ?? 60 * 60 * 1000, // 1 hour
-      browser: config.browser,
+      browserBinding: config.browserBinding,
     };
 
     // Start cleanup interval to evict idle and old pages
@@ -155,8 +161,13 @@ export class BrowserPool {
    */
   private async createPage(): Promise<PooledPage> {
     try {
+      // Launch browser if not already running (lazy initialization)
+      if (!this.browser) {
+        this.browser = await puppeteer.launch(this.config.browserBinding);
+      }
+
       // Create new page from browser
-      const page = await this.config.browser.newPage();
+      const page = await this.browser.newPage();
 
       // Disable images and unnecessary resources for faster loading (optional)
       // await page.setRequestInterception(true);
@@ -334,6 +345,16 @@ export class BrowserPool {
       await Promise.all(closePromises);
     } catch (error) {
       console.error('Error disposing browser pool:', error);
+    }
+
+    // Close browser instance
+    if (this.browser) {
+      try {
+        await this.browser.close();
+        this.browser = null;
+      } catch (error) {
+        console.error('Error closing browser:', error);
+      }
     }
 
     // Clear pool
