@@ -30,13 +30,16 @@ EXECUTE FUNCTION update_updated_at_column();
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Users can read own profile" ON users
+DROP POLICY IF EXISTS "Users can read own profile" ON users;
+CREATE POLICY "Users can read own profile" ON users
 FOR SELECT USING (auth.uid() = id);
 
-CREATE POLICY IF NOT EXISTS "Users can update own profile" ON users
+DROP POLICY IF EXISTS "Users can update own profile" ON users;
+CREATE POLICY "Users can update own profile" ON users
 FOR UPDATE USING (auth.uid() = id);
 
-CREATE POLICY IF NOT EXISTS "Service role bypass users" ON users
+DROP POLICY IF EXISTS "Service role bypass users" ON users;
+CREATE POLICY "Service role bypass users" ON users
 USING (auth.jwt() ->> 'role' = 'service_role');
 
 -- ============================================================================
@@ -59,19 +62,24 @@ CREATE INDEX IF NOT EXISTS idx_api_keys_user_active ON api_keys(user_id, is_acti
 
 ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Users can read own API keys" ON api_keys
+DROP POLICY IF EXISTS "Users can read own API keys" ON api_keys;
+CREATE POLICY "Users can read own API keys" ON api_keys
 FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY IF NOT EXISTS "Users can create own API keys" ON api_keys
+DROP POLICY IF EXISTS "Users can create own API keys" ON api_keys;
+CREATE POLICY "Users can create own API keys" ON api_keys
 FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY IF NOT EXISTS "Users can update own API keys" ON api_keys
+DROP POLICY IF EXISTS "Users can update own API keys" ON api_keys;
+CREATE POLICY "Users can update own API keys" ON api_keys
 FOR UPDATE USING (auth.uid() = user_id);
 
-CREATE POLICY IF NOT EXISTS "Users can delete own API keys" ON api_keys
+DROP POLICY IF EXISTS "Users can delete own API keys" ON api_keys;
+CREATE POLICY "Users can delete own API keys" ON api_keys
 FOR DELETE USING (auth.uid() = user_id);
 
-CREATE POLICY IF NOT EXISTS "Service role bypass api_keys" ON api_keys
+DROP POLICY IF EXISTS "Service role bypass api_keys" ON api_keys;
+CREATE POLICY "Service role bypass api_keys" ON api_keys
 USING (auth.jwt() ->> 'role' = 'service_role');
 
 -- ============================================================================
@@ -94,10 +102,12 @@ CREATE INDEX IF NOT EXISTS idx_subscriptions_dodo_id ON subscriptions(dodo_subsc
 
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Users can read own subscription" ON subscriptions
+DROP POLICY IF EXISTS "Users can read own subscription" ON subscriptions;
+CREATE POLICY "Users can read own subscription" ON subscriptions
 FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY IF NOT EXISTS "Service role bypass subscriptions" ON subscriptions
+DROP POLICY IF EXISTS "Service role bypass subscriptions" ON subscriptions;
+CREATE POLICY "Service role bypass subscriptions" ON subscriptions
 USING (auth.jwt() ->> 'role' = 'service_role');
 
 -- ============================================================================
@@ -117,8 +127,10 @@ CREATE INDEX IF NOT EXISTS idx_usage_records_api_key ON usage_records(api_key_id
 
 ALTER TABLE usage_records ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Users can read own usage" ON usage_records
+DROP POLICY IF EXISTS "Users can read own usage" ON usage_records;
+CREATE POLICY "Users can read own usage" ON usage_records
 FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY IF NOT EXISTS "Service role bypass usage_records" ON usage_records
+DROP POLICY IF EXISTS "Service role bypass usage_records" ON usage_records;
+CREATE POLICY "Service role bypass usage_records" ON usage_records
 USING (auth.jwt() ->> 'role' = 'service_role');

@@ -52,7 +52,13 @@
       "Bash(if [ -d \"C:/coding/speedstein/specs/003-production-readiness/checklists\" ])",
       "Bash(then ls -1 \"C:/coding/speedstein/specs/003-production-readiness/checklists\")",
       "Bash(powershell.exe -ExecutionPolicy Bypass -File .specify/scripts/powershell/update-agent-context.ps1 -AgentType claude)",
-      "Bash(node --version:*)"
+      "Bash(node --version:*)",
+      "Bash(supabase migration repair:*)",
+      "Bash(supabase migration:*)",
+      "Bash(supabase db remote exec:*)",
+      "Bash(supabase inspect:*)",
+      "Bash(supabase db pull:*)",
+      "Bash(node scripts/test-database.mjs:*)"
     ],
     "deny": [],
     "ask": []
