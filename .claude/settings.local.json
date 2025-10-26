@@ -58,7 +58,16 @@
       "Bash(supabase db remote exec:*)",
       "Bash(supabase inspect:*)",
       "Bash(supabase db pull:*)",
-      "Bash(node scripts/test-database.mjs:*)"
+      "Bash(node scripts/test-database.mjs:*)",
+      "Bash(powershell.exe -Command \"$devVars = Get-Content apps/worker/.dev.vars; foreach ($line in $devVars) { if ($line -match ''^SUPABASE_URL=(.+)$'') { $env:SUPABASE_URL = $matches[1] }; if ($line -match ''^SUPABASE_SERVICE_ROLE_KEY=(.+)$'') { $env:SUPABASE_SERVICE_ROLE_KEY = $matches[1] } }; node scripts/generate-test-api-key-fixed.mjs\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File scripts/generate-test-key.ps1)",
+      "Bash(export SUPABASE_URL:*)",
+      "Bash(export SUPABASE_SERVICE_ROLE_KEY:*)",
+      "Bash(node scripts/generate-test-api-key-fixed.mjs:*)",
+      "Bash(export TEST_API_KEY=\"sk_test_E_wGc6O3HC6UUVUwuvMZoaj8qTYUHsgJK2h2uoRumBU\")",
+      "Bash(node scripts/test-api-e2e.mjs:*)",
+      "Bash(start speedstein-success.pdf)",
+      "Bash(start speedstein-demo.pdf)"
     ],
     "deny": [],
     "ask": []

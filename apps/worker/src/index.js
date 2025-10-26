@@ -199,7 +199,7 @@ app.post('/api/generate', async (c) => {
                             generationTime: doResult.generationTime || 0,
                             htmlHash: await hashHtmlContent(html),
                             htmlSize: new TextEncoder().encode(html).length,
-                            pdfSize: 0, // Size not available when using R2 URL
+                            pdfSize: doResult.size || 0, // Get size from DO response
                         };
                     }
                     else if (doResult.pdfBuffer) {

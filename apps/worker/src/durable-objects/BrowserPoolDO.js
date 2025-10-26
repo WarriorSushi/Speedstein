@@ -95,7 +95,7 @@ export class BrowserPoolDO {
                 try {
                     const fileName = generatePdfFileName();
                     const uploadResult = await uploadPdfToR2({
-                        bucket: this.env.R2_BUCKET,
+                        bucket: this.env.PDF_STORAGE, // Corrected binding name
                         content: pdfBuffer,
                         fileName,
                         userTier: options.userTier || 'free',
@@ -109,6 +109,7 @@ export class BrowserPoolDO {
                     return new Response(JSON.stringify({
                         success: true,
                         pdf_url: uploadResult.url,
+                        size: uploadResult.size, // Include PDF size
                         expiresAt: uploadResult.expiresAt,
                         generationTime,
                     }), {

@@ -20,7 +20,7 @@ import { uploadPdfToR2, generatePdfFileName } from '../lib/r2';
  */
 interface BrowserPoolEnv {
   BROWSER: Fetcher;
-  R2_BUCKET: R2Bucket;
+  PDF_STORAGE: R2Bucket;  // Matches binding name in wrangler.toml
 }
 
 export class BrowserPoolDO {
@@ -130,7 +130,7 @@ export class BrowserPoolDO {
         try {
           const fileName = generatePdfFileName();
           const uploadResult = await uploadPdfToR2({
-            bucket: this.env.R2_BUCKET,
+            bucket: this.env.PDF_STORAGE,  // Corrected binding name
             content: pdfBuffer,
             fileName,
             userTier: options.userTier || 'free',
@@ -146,6 +146,7 @@ export class BrowserPoolDO {
             JSON.stringify({
               success: true,
               pdf_url: uploadResult.url,
+              size: uploadResult.size,  // Include PDF size
               expiresAt: uploadResult.expiresAt,
               generationTime,
             }),

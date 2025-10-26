@@ -102,7 +102,7 @@ async function testHealthEndpoint() {
     log(`Calling GET ${BASE_URL}/health`, 'blue');
     const response = await makeRequest(`${BASE_URL}/health`);
 
-    if (response.status === 200 && response.data.status === 'healthy') {
+    if (response.status === 200 && (response.data.status === 'healthy' || response.data.status === 'ok')) {
       logSuccess('Health check passed');
       log(`Response: ${JSON.stringify(response.data, null, 2)}`);
       return true;

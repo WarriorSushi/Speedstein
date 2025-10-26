@@ -96,15 +96,15 @@ export class AuthService {
           revoked,
           users!inner (
             id,
-            email
-          ),
-          subscriptions!inner (
-            plan_tier,
-            status
-          ),
-          usage_quotas!inner (
-            plan_quota,
-            current_usage
+            email,
+            subscriptions!inner (
+              plan_tier,
+              status
+            ),
+            usage_quotas!inner (
+              plan_quota,
+              current_usage
+            )
           )
         `
         )
@@ -135,15 +135,20 @@ export class AuthService {
         console.error('Failed to update last_used_at:', err);
       });
 
+      // Extract nested data
+      const user = (data.users as any);
+      const subscription = user?.subscriptions;
+      const usageQuota = user?.usage_quotas;
+
       // Return auth context
       return {
         userId: data.user_id,
         apiKeyId: data.id,
         apiKeyName: data.name,
-        userEmail: (data.users as any).email,
-        planTier: (data.subscriptions as any).plan_tier,
-        planQuota: (data.usage_quotas as any).plan_quota,
-        currentUsage: (data.usage_quotas as any).current_usage,
+        userEmail: user.email,
+        planTier: subscription.plan_tier,
+        planQuota: usageQuota.plan_quota,
+        currentUsage: usageQuota.current_usage,
       };
     } catch (error) {
       if (error instanceof UnauthorizedError || error instanceof DatabaseError) {

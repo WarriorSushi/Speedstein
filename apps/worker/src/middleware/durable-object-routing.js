@@ -127,6 +127,7 @@ export async function generatePdfThroughDO(doContext, html, options) {
         return {
             success: true,
             pdf_url: result.pdf_url,
+            size: result.size, // Pass through PDF size
             expiresAt: result.expiresAt,
             pdfBuffer: result.pdfBuffer ? new Uint8Array(result.pdfBuffer) : undefined,
             generationTime: result.generationTime,

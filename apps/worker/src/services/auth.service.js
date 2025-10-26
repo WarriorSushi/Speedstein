@@ -62,15 +62,15 @@ export class AuthService {
           revoked,
           users!inner (
             id,
-            email
-          ),
-          subscriptions!inner (
-            plan_tier,
-            status
-          ),
-          usage_quotas!inner (
-            plan_quota,
-            current_usage
+            email,
+            subscriptions!inner (
+              plan_tier,
+              status
+            ),
+            usage_quotas!inner (
+              plan_quota,
+              current_usage
+            )
           )
         `)
                 .eq('key_hash', keyHash)
@@ -95,15 +95,19 @@ export class AuthService {
             this.updateLastUsedAt(data.id).catch((err) => {
                 console.error('Failed to update last_used_at:', err);
             });
+            // Extract nested data
+            const user = data.users;
+            const subscription = user?.subscriptions;
+            const usageQuota = user?.usage_quotas;
             // Return auth context
             return {
                 userId: data.user_id,
                 apiKeyId: data.id,
                 apiKeyName: data.name,
-                userEmail: data.users.email,
-                planTier: data.subscriptions.plan_tier,
-                planQuota: data.usage_quotas.plan_quota,
-                currentUsage: data.usage_quotas.current_usage,
+                userEmail: user.email,
+                planTier: subscription.plan_tier,
+                planQuota: usageQuota.plan_quota,
+                currentUsage: usageQuota.current_usage,
             };
         }
         catch (error) {

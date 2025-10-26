@@ -156,6 +156,7 @@ export async function generatePdfThroughDO(
 ): Promise<{
   success: boolean;
   pdf_url?: string;
+  size?: number;  // PDF size in bytes
   expiresAt?: string;
   pdfBuffer?: Uint8Array;
   generationTime?: number;
@@ -181,6 +182,7 @@ export async function generatePdfThroughDO(
     const result = (await response.json()) as {
       success: boolean;
       pdf_url?: string;
+      size?: number;  // PDF size in bytes
       expiresAt?: string;
       pdfBuffer?: number[];
       generationTime?: number;
@@ -197,6 +199,7 @@ export async function generatePdfThroughDO(
     return {
       success: true,
       pdf_url: result.pdf_url,
+      size: result.size,  // Pass through PDF size
       expiresAt: result.expiresAt,
       pdfBuffer: result.pdfBuffer ? new Uint8Array(result.pdfBuffer) : undefined,
       generationTime: result.generationTime,
