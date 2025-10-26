@@ -333,8 +333,8 @@ This task list implements the Production Readiness feature, addressing critical 
 - [X] T098 [P] Verify all environment variables documented in .env.example files
 - [X] T099 Update README.md with quickstart guide reference (link to specs/003-production-readiness/quickstart.md)
 - [X] T100 Test end-to-end flow: Sign up → Create API key → Generate PDF → Access URL
-- [ ] T101 Deploy Worker to production (pnpm run deploy in apps/worker)
-- [ ] T102 Deploy Frontend to Cloudflare Pages (connect GitHub repo or wrangler pages deploy)
+- [X] T101 Deploy Worker to production (pnpm run deploy in apps/worker)
+- [X] T102 Deploy Frontend to Cloudflare Pages (connect GitHub repo or wrangler pages deploy)
 
 **Parallel Execution**: T097-T098 can run in parallel (different checks). T100-T102 sequential (deployment).
 
