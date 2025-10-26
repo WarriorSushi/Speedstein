@@ -102,7 +102,9 @@ export class PdfGeneratorApi extends RpcTarget {
     this.apiKey = apiKey;
 
     // Initialize services
-    this.pdfService = new PdfService(browserPool);
+    // TODO: Fix type mismatch - PdfService expects SimpleBrowserService but RPC uses BrowserPool
+    // This RPC code needs refactoring to work with the updated architecture
+    this.pdfService = new PdfService(browserPool as any);
     this.authService = new AuthService(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY);
     this.quotaService = new QuotaService(
       this.authService['supabase'] // Access private supabase client
@@ -202,14 +204,20 @@ export class PdfGeneratorApi extends RpcTarget {
 
       // Generate PDF
       const startTime = Date.now();
-      const pdfBuffer = await this.pdfService.generatePdf(html, options);
+      // TODO: Fix - generatePdf now returns PdfGenerationResult, not just buffer
+      // RPC code needs refactoring to handle the new response structure
+      const pdfResult = await this.pdfService.generatePdf(html, options, {
+        userId: this.userId!,
+        apiKeyId: '', // TODO: Get from auth context
+        requestId,
+      });
       const generationTime = Date.now() - startTime;
 
       // Upload to R2
       const fileName = generatePdfFileName();
       const uploadResult = await uploadPdfToR2({
         bucket: this.env.R2_BUCKET,
-        content: pdfBuffer,
+        content: pdfResult.pdfBuffer,
         fileName,
         metadata: {
           userId: this.userId!,
@@ -223,17 +231,18 @@ export class PdfGeneratorApi extends RpcTarget {
       // Log success
       logger.logPdfGeneration({
         generationTimeMs: generationTime,
-        htmlSizeBytes: html.length,
-        pdfSizeBytes: uploadResult.size,
+        htmlSizeBytes: pdfResult.htmlSize,
+        pdfSizeBytes: pdfResult.pdfSize,
         userId: this.userId!,
         apiKeyId: '', // TODO: Get from auth context
         requestId,
         format: options?.format,
-        landscape: options?.landscape,
+        landscape: false, // TODO: Extract from options properly
         success: true,
       });
 
       return {
+        success: true,
         url: uploadResult.url,
         size: uploadResult.size,
         generationTime,

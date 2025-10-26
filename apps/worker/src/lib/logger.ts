@@ -26,7 +26,6 @@ interface BaseLogEntry {
   timestamp: string;
   requestId?: string;
   userId?: string;
-  [key: string]: unknown;
 }
 
 /**
@@ -191,7 +190,7 @@ export class Logger {
    * });
    * ```
    */
-  logPdfGeneration(data: Omit<PdfGenerationLog, keyof BaseLogEntry>): void {
+  logPdfGeneration(data: Omit<PdfGenerationLog, 'level' | 'message' | 'timestamp' | 'event'>): void {
     this.log(LogLevel.INFO, `PDF generated in ${data.generationTimeMs}ms`, {
       event: 'pdf_generation',
       ...data,
@@ -203,7 +202,7 @@ export class Logger {
    *
    * @param data - API request data
    */
-  logApiRequest(data: Omit<ApiRequestLog, keyof BaseLogEntry>): void {
+  logApiRequest(data: Omit<ApiRequestLog, 'level' | 'message' | 'timestamp' | 'event'>): void {
     this.log(
       LogLevel.INFO,
       `${data.method} ${data.path} - ${data.statusCode} (${data.durationMs}ms)`,
@@ -219,7 +218,7 @@ export class Logger {
    *
    * @param data - Auth data
    */
-  logAuth(data: Omit<AuthLog, keyof BaseLogEntry>): void {
+  logAuth(data: Omit<AuthLog, 'level' | 'message' | 'timestamp' | 'event'>): void {
     const message = data.success ? 'Authentication successful' : 'Authentication failed';
     this.log(data.success ? LogLevel.INFO : LogLevel.WARN, message, {
       event: 'auth',
@@ -232,7 +231,7 @@ export class Logger {
    *
    * @param data - Quota check data
    */
-  logQuotaCheck(data: Omit<QuotaLog, keyof BaseLogEntry>): void {
+  logQuotaCheck(data: Omit<QuotaLog, 'level' | 'message' | 'timestamp' | 'event'>): void {
     const message = data.allowed
       ? `Quota check passed (${data.percentage}%)`
       : 'Quota exceeded';
@@ -247,7 +246,7 @@ export class Logger {
    *
    * @param data - Rate limit data
    */
-  logRateLimit(data: Omit<RateLimitLog, keyof BaseLogEntry>): void {
+  logRateLimit(data: Omit<RateLimitLog, 'level' | 'message' | 'timestamp' | 'event'>): void {
     const message = data.allowed
       ? `Rate limit check passed (${data.currentCount}/${data.limit})`
       : `Rate limit exceeded (${data.currentCount}/${data.limit})`;

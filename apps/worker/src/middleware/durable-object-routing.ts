@@ -155,6 +155,8 @@ export async function generatePdfThroughDO(
   options: any
 ): Promise<{
   success: boolean;
+  pdf_url?: string;
+  expiresAt?: string;
   pdfBuffer?: Uint8Array;
   generationTime?: number;
   error?: string;
@@ -176,7 +178,14 @@ export async function generatePdfThroughDO(
 
     // Forward to Durable Object browser pool
     const response = await doContext.doStub.fetch(request);
-    const result = (await response.json()) as { success: boolean; pdfBuffer?: number[]; generationTime?: number; error?: string };
+    const result = (await response.json()) as {
+      success: boolean;
+      pdf_url?: string;
+      expiresAt?: string;
+      pdfBuffer?: number[];
+      generationTime?: number;
+      error?: string;
+    };
 
     if (!response.ok) {
       return {
@@ -187,6 +196,8 @@ export async function generatePdfThroughDO(
 
     return {
       success: true,
+      pdf_url: result.pdf_url,
+      expiresAt: result.expiresAt,
       pdfBuffer: result.pdfBuffer ? new Uint8Array(result.pdfBuffer) : undefined,
       generationTime: result.generationTime,
     };

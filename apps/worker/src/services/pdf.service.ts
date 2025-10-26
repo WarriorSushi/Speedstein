@@ -101,7 +101,7 @@ export class PdfService {
     const puppeteerOptions = this.convertToPuppeteerOptions(pdfOptions);
 
     // Hash HTML for deduplication
-    const htmlHash = hashHtmlContent(html);
+    const htmlHash = await hashHtmlContent(html);
     const htmlSize = new TextEncoder().encode(html).length;
 
     try {

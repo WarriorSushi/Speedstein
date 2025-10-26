@@ -232,13 +232,21 @@ app.post('/api/generate', async (c) => {
       throw new QuotaExceededError(
         quotaCheck.quota,
         quotaCheck.used,
-        quotaCheck.resetDate
+        quotaCheck.resetDate || new Date().toISOString()
       );
     }
 
     // 7. Generate PDF via Durable Objects (with fallback to SimpleBrowserService)
     const pdfGenStartTime = Date.now();
-    let pdfResult;
+    let pdfResult: {
+      pdf_url?: string;
+      expiresAt?: string;
+      pdfBuffer?: Uint8Array | ArrayBuffer;
+      generationTime: number;
+      htmlHash?: string;
+      htmlSize?: number;
+      pdfSize?: number;
+    } | undefined;
     let usedDurableObjects = false;
 
     // Check if Durable Objects routing is enabled (feature flag)
@@ -263,7 +271,7 @@ app.post('/api/generate', async (c) => {
         // Add userTier to options for R2 lifecycle tagging
         const optionsWithTier = {
           ...options,
-          userTier: authContext.subscriptionTier || 'free',
+          userTier: authContext.planTier || 'free',
           userId: authContext.userId,
         };
 
@@ -337,6 +345,11 @@ app.post('/api/generate', async (c) => {
 
     const pdfGenTime = Date.now() - pdfGenStartTime;
 
+    // Ensure pdfResult was populated
+    if (!pdfResult) {
+      throw new Error('PDF generation failed - no result returned');
+    }
+
     // 8. Upload to R2 (if not already uploaded by Durable Object)
     let uploadResult;
     if (pdfResult.pdf_url) {
@@ -348,20 +361,22 @@ app.post('/api/generate', async (c) => {
         key: 'uploaded-by-do',
         etag: '',
       };
-    } else {
+    } else if (pdfResult.pdfBuffer) {
       // Upload pdfBuffer to R2
       const fileName = generatePdfFileName();
       uploadResult = await uploadPdfToR2({
         bucket: c.env.PDF_STORAGE,
         content: pdfResult.pdfBuffer,
         fileName,
-        userTier: authContext.subscriptionTier || 'free',
+        userTier: authContext.planTier || 'free',
         metadata: {
           userId: authContext.userId,
           apiKeyId: authContext.apiKeyId,
           requestId,
         },
       });
+    } else {
+      throw new Error('PDF generation failed - no URL or buffer returned');
     }
 
     // 9. Increment usage quota
@@ -370,8 +385,8 @@ app.post('/api/generate', async (c) => {
     // 10. Log success
     logger.logPdfGeneration({
       generationTimeMs: pdfGenTime,
-      htmlSizeBytes: pdfResult.htmlSize,
-      pdfSizeBytes: pdfResult.pdfSize,
+      htmlSizeBytes: pdfResult.htmlSize || 0,
+      pdfSizeBytes: pdfResult.pdfSize || 0,
       userId: authContext.userId,
       apiKeyId: authContext.apiKeyId,
       apiKeyName: authContext.apiKeyName,

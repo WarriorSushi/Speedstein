@@ -6,17 +6,17 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { GeneratePdfSchema, CreateApiKeySchema } from '../validation';
+import { PdfGenerationRequestSchema, ApiKeySchema } from '../validation';
 import { ZodError } from 'zod';
 
 describe('validation schemas', () => {
-  describe('GeneratePdfSchema', () => {
+  describe('PdfGenerationRequestSchema', () => {
     it('should validate valid HTML with minimal options', () => {
       const validInput = {
         html: '<html><body><h1>Test</h1></body></html>',
       };
 
-      const result = GeneratePdfSchema.parse(validInput);
+      const result = PdfGenerationRequestSchema.parse(validInput);
       expect(result.html).toBe(validInput.html);
       expect(result.options).toBeUndefined();
     });
@@ -42,23 +42,23 @@ describe('validation schemas', () => {
         },
       };
 
-      const result = GeneratePdfSchema.parse(validInput);
+      const result = PdfGenerationRequestSchema.parse(validInput);
       expect(result.html).toBe(validInput.html);
       expect(result.options?.format).toBe('A4');
-      expect(result.options?.orientation).toBe('landscape');
+      expect(result.options?.landscape).toBe(true);
       expect(result.options?.scale).toBe(1.5);
     });
 
     it('should reject empty HTML', () => {
       const invalidInput = { html: '' };
 
-      expect(() => GeneratePdfSchema.parse(invalidInput)).toThrow(ZodError);
+      expect(() => PdfGenerationRequestSchema.parse(invalidInput)).toThrow(ZodError);
     });
 
     it('should reject missing HTML field', () => {
       const invalidInput = {};
 
-      expect(() => GeneratePdfSchema.parse(invalidInput)).toThrow(ZodError);
+      expect(() => PdfGenerationRequestSchema.parse(invalidInput)).toThrow(ZodError);
     });
 
     it('should reject HTML larger than 10MB', () => {
@@ -66,9 +66,9 @@ describe('validation schemas', () => {
       const largeHtml = 'a'.repeat(10_485_761);
       const invalidInput = { html: largeHtml };
 
-      expect(() => GeneratePdfSchema.parse(invalidInput)).toThrow(ZodError);
+      expect(() => PdfGenerationRequestSchema.parse(invalidInput)).toThrow(ZodError);
       try {
-        GeneratePdfSchema.parse(invalidInput);
+        PdfGenerationRequestSchema.parse(invalidInput);
       } catch (error) {
         if (error instanceof ZodError) {
           expect(error.errors[0].message).toContain('10MB');
@@ -84,7 +84,7 @@ describe('validation schemas', () => {
         },
       };
 
-      expect(() => GeneratePdfSchema.parse(invalidInput)).toThrow(ZodError);
+      expect(() => PdfGenerationRequestSchema.parse(invalidInput)).toThrow(ZodError);
     });
 
     it('should reject invalid orientation', () => {
@@ -95,7 +95,7 @@ describe('validation schemas', () => {
         },
       };
 
-      expect(() => GeneratePdfSchema.parse(invalidInput)).toThrow(ZodError);
+      expect(() => PdfGenerationRequestSchema.parse(invalidInput)).toThrow(ZodError);
     });
 
     it('should reject scale outside valid range', () => {
@@ -109,8 +109,8 @@ describe('validation schemas', () => {
         options: { scale: 3.0 }, // Too large
       };
 
-      expect(() => GeneratePdfSchema.parse(invalidInput1)).toThrow(ZodError);
-      expect(() => GeneratePdfSchema.parse(invalidInput2)).toThrow(ZodError);
+      expect(() => PdfGenerationRequestSchema.parse(invalidInput1)).toThrow(ZodError);
+      expect(() => PdfGenerationRequestSchema.parse(invalidInput2)).toThrow(ZodError);
     });
 
     it('should validate scale within valid range (0.1 to 2.0)', () => {
@@ -119,7 +119,7 @@ describe('validation schemas', () => {
         options: { scale: 1.0 },
       };
 
-      const result = GeneratePdfSchema.parse(validInput);
+      const result = PdfGenerationRequestSchema.parse(validInput);
       expect(result.options?.scale).toBe(1.0);
     });
 
@@ -133,7 +133,7 @@ describe('validation schemas', () => {
         },
       };
 
-      expect(() => GeneratePdfSchema.parse(invalidInput)).toThrow(ZodError);
+      expect(() => PdfGenerationRequestSchema.parse(invalidInput)).toThrow(ZodError);
     });
 
     it('should validate all supported page formats', () => {
@@ -145,7 +145,7 @@ describe('validation schemas', () => {
           options: { format },
         };
 
-        const result = GeneratePdfSchema.parse(validInput);
+        const result = PdfGenerationRequestSchema.parse(validInput);
         expect(result.options?.format).toBe(format);
       });
     });
@@ -155,7 +155,7 @@ describe('validation schemas', () => {
         html: '<html><body><h1>Test & "Quotes" < > \'Single\'</h1></body></html>',
       };
 
-      const result = GeneratePdfSchema.parse(validInput);
+      const result = PdfGenerationRequestSchema.parse(validInput);
       expect(result.html).toBe(validInput.html);
     });
 
@@ -164,61 +164,61 @@ describe('validation schemas', () => {
         html: '<html><body><h1>Hello 世界 🌍</h1></body></html>',
       };
 
-      const result = GeneratePdfSchema.parse(validInput);
+      const result = PdfGenerationRequestSchema.parse(validInput);
       expect(result.html).toBe(validInput.html);
     });
   });
 
-  describe('CreateApiKeySchema', () => {
+  describe('ApiKeySchema', () => {
     it('should validate valid API key name', () => {
       const validInput = { name: 'Production API Key' };
 
-      const result = CreateApiKeySchema.parse(validInput);
+      const result = ApiKeySchema.parse(validInput);
       expect(result.name).toBe('Production API Key');
     });
 
     it('should trim whitespace from name', () => {
       const validInput = { name: '  Staging  ' };
 
-      const result = CreateApiKeySchema.parse(validInput);
+      const result = ApiKeySchema.parse(validInput);
       expect(result.name).toBe('Staging');
     });
 
     it('should reject empty name', () => {
       const invalidInput = { name: '' };
 
-      expect(() => CreateApiKeySchema.parse(invalidInput)).toThrow(ZodError);
+      expect(() => ApiKeySchema.parse(invalidInput)).toThrow(ZodError);
     });
 
     it('should reject name with only whitespace', () => {
       const invalidInput = { name: '   ' };
 
-      expect(() => CreateApiKeySchema.parse(invalidInput)).toThrow(ZodError);
+      expect(() => ApiKeySchema.parse(invalidInput)).toThrow(ZodError);
     });
 
     it('should reject name longer than 100 characters', () => {
       const invalidInput = { name: 'a'.repeat(101) };
 
-      expect(() => CreateApiKeySchema.parse(invalidInput)).toThrow(ZodError);
+      expect(() => ApiKeySchema.parse(invalidInput)).toThrow(ZodError);
     });
 
     it('should accept name with maximum length (100 chars)', () => {
       const validInput = { name: 'a'.repeat(100) };
 
-      const result = CreateApiKeySchema.parse(validInput);
+      const result = ApiKeySchema.parse(validInput);
       expect(result.name).toHaveLength(100);
     });
 
     it('should reject missing name field', () => {
       const invalidInput = {};
 
-      expect(() => CreateApiKeySchema.parse(invalidInput)).toThrow(ZodError);
+      expect(() => ApiKeySchema.parse(invalidInput)).toThrow(ZodError);
     });
 
     it('should accept name with special characters', () => {
       const validInput = { name: 'API-Key_2024 (Production)' };
 
-      const result = CreateApiKeySchema.parse(validInput);
+      const result = ApiKeySchema.parse(validInput);
       expect(result.name).toBe('API-Key_2024 (Production)');
     });
   });
@@ -231,7 +231,7 @@ describe('validation schemas', () => {
       };
 
       try {
-        GeneratePdfSchema.parse(invalidInput);
+        PdfGenerationRequestSchema.parse(invalidInput);
       } catch (error) {
         if (error instanceof ZodError) {
           const formatError = error.errors.find((e) => e.path.includes('format'));
@@ -251,7 +251,7 @@ describe('validation schemas', () => {
         },
       };
 
-      const result = GeneratePdfSchema.parse(validInput);
+      const result = PdfGenerationRequestSchema.parse(validInput);
       expect(result.options?.headerTemplate).toContain('Company Name');
       expect(result.options?.footerTemplate).toContain('pageNumber');
     });

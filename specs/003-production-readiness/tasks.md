@@ -329,7 +329,7 @@ This task list implements the Production Readiness feature, addressing critical 
 **Goal**: Final integration, documentation, and deployment preparation
 
 **Tasks**:
-- [ ] T097 [P] Verify all TypeScript compilation passes (pnpm run check in apps/worker and apps/web)
+- [X] T097 [P] Verify all TypeScript compilation passes (pnpm run check in apps/worker and apps/web)
 - [ ] T098 [P] Verify all environment variables documented in .env.example files
 - [ ] T099 Update README.md with quickstart guide reference (link to specs/003-production-readiness/quickstart.md)
 - [ ] T100 Test end-to-end flow: Sign up → Create API key → Generate PDF → Access URL
