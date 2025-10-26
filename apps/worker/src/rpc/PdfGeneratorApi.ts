@@ -130,7 +130,14 @@ export class PdfGeneratorApi extends RpcTarget {
 
       // Forward to Durable Object browser pool
       const response = await doStub.fetch(request);
-      const result = (await response.json()) as { success: boolean; pdfBuffer?: number[]; generationTime?: number; error?: string };
+      const result = (await response.json()) as {
+        success: boolean;
+        pdf_url?: string;
+        expiresAt?: string;
+        pdfBuffer?: number[];
+        generationTime?: number;
+        error?: string;
+      };
 
       const generationTime = Date.now() - startTime;
       const requestId = `rpc-${this.sessionId}-${Date.now()}`;
@@ -153,7 +160,8 @@ export class PdfGeneratorApi extends RpcTarget {
 
       return {
         success: true,
-        pdfUrl: '', // WebSocket RPC doesn't use URLs, buffer is returned directly
+        pdfUrl: result.pdf_url || '', // Return R2 URL if available
+        expiresAt: result.expiresAt,
         generationTime: result.generationTime || generationTime,
         requestId,
       };

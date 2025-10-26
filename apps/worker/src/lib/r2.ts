@@ -11,6 +11,23 @@ import { StorageError } from '@speedstein/shared/lib/errors';
 import { PDF_EXPIRATION_DAYS } from '@speedstein/shared/types/pdf';
 
 /**
+ * Get retention period in days for a given pricing tier
+ *
+ * @param tier - User's pricing tier (free, starter, pro, enterprise)
+ * @returns Retention period in days
+ */
+function getRetentionDaysForTier(tier: string): number {
+  const retentionMap: Record<string, number> = {
+    free: 1,
+    starter: 7,
+    pro: 30,
+    enterprise: 90,
+  };
+
+  return retentionMap[tier.toLowerCase()] || 1; // Default to 1 day if tier not found
+}
+
+/**
  * R2 upload options
  */
 export interface R2UploadOptions {
@@ -56,8 +73,9 @@ export interface R2UploadResult {
 /**
  * Upload a PDF file to Cloudflare R2
  *
- * Uploads the generated PDF to R2 storage with a 30-day TTL.
+ * Uploads the generated PDF to R2 storage with tier-based retention period.
  * The file will be publicly accessible via a CDN URL.
+ * Lifecycle policies in R2 will automatically delete PDFs after their retention period.
  *
  * @param options - Upload configuration options
  * @returns Upload result with public URL and metadata
@@ -69,6 +87,7 @@ export interface R2UploadResult {
  *   bucket: env.R2_BUCKET,
  *   content: pdfBuffer,
  *   fileName: 'invoice-123.pdf',
+ *   userTier: 'pro', // Will use 30-day retention
  *   metadata: {
  *     userId: 'user_123',
  *     requestId: 'req_abc',
@@ -82,9 +101,11 @@ export async function uploadPdfToR2(options: R2UploadOptions): Promise<R2UploadR
   const { bucket, content, fileName, contentType = 'application/pdf', metadata = {}, userTier } = options;
 
   try {
-    // Calculate expiration date (30 days from now)
+    // Calculate expiration date based on user tier
+    // Retention periods: free=1d, starter=7d, pro=30d, enterprise=90d
+    const retentionDays = getRetentionDaysForTier(userTier || 'free');
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + PDF_EXPIRATION_DAYS);
+    expiresAt.setDate(expiresAt.getDate() + retentionDays);
 
     // Prepare R2 put options with tier tagging for lifecycle policies
     const putOptions: R2PutOptions = {

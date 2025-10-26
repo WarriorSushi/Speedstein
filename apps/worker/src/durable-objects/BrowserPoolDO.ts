@@ -13,12 +13,14 @@ import type {
   PdfOptions,
   PdfResult,
 } from '../types/durable-objects';
+import { uploadPdfToR2, generatePdfFileName } from '../lib/r2';
 
 /**
  * Environment bindings for BrowserPoolDO
  */
 interface BrowserPoolEnv {
   BROWSER: Fetcher;
+  R2_BUCKET: R2Bucket;
 }
 
 export class BrowserPoolDO {
@@ -124,17 +126,51 @@ export class BrowserPoolDO {
         this.browserPoolState.totalPdfsGenerated++;
         this.browserPoolState.lastActivityAt = new Date();
 
-        return new Response(
-          JSON.stringify({
-            success: true,
-            pdfBuffer: Array.from(pdfBuffer),
-            generationTime,
-          }),
-          {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
+        // Upload PDF to R2 storage with tier-based lifecycle tagging
+        try {
+          const fileName = generatePdfFileName();
+          const uploadResult = await uploadPdfToR2({
+            bucket: this.env.R2_BUCKET,
+            content: pdfBuffer,
+            fileName,
+            userTier: options.userTier || 'free',
+            metadata: {
+              userId: options.userId || 'anonymous',
+              generatedAt: new Date().toISOString(),
+              generationTime: generationTime.toString(),
+            },
+          });
+
+          // Return PDF URL and expiration time
+          return new Response(
+            JSON.stringify({
+              success: true,
+              pdf_url: uploadResult.url,
+              expiresAt: uploadResult.expiresAt,
+              generationTime,
+            }),
+            {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            }
+          );
+        } catch (r2Error) {
+          // Fallback: If R2 upload fails, return pdfBuffer (degraded mode)
+          console.error('R2 upload failed, falling back to buffer response:', r2Error);
+
+          return new Response(
+            JSON.stringify({
+              success: true,
+              pdfBuffer: Array.from(pdfBuffer),
+              generationTime,
+              warning: 'PDF generated but not uploaded to storage. Using fallback buffer response.',
+            }),
+            {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            }
+          );
+        }
       } finally {
         await page.close();
       }

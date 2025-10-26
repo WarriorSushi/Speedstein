@@ -260,19 +260,40 @@ app.post('/api/generate', async (c) => {
           requestId,
         });
 
-        // Generate PDF through Durable Object
-        const doResult = await generatePdfThroughDO(doContext, html, options);
+        // Add userTier to options for R2 lifecycle tagging
+        const optionsWithTier = {
+          ...options,
+          userTier: authContext.subscriptionTier || 'free',
+          userId: authContext.userId,
+        };
 
-        if (doResult.success && doResult.pdfBuffer) {
+        // Generate PDF through Durable Object
+        const doResult = await generatePdfThroughDO(doContext, html, optionsWithTier);
+
+        if (doResult.success && (doResult.pdf_url || doResult.pdfBuffer)) {
           // Success! Use DO result
           usedDurableObjects = true;
-          pdfResult = {
-            pdfBuffer: doResult.pdfBuffer,
-            generationTime: doResult.generationTime || 0,
-            htmlHash: hashHtmlContent(html),
-            htmlSize: new TextEncoder().encode(html).length,
-            pdfSize: doResult.pdfBuffer.byteLength,
-          };
+
+          if (doResult.pdf_url) {
+            // DO returned PDF URL - R2 upload already handled
+            pdfResult = {
+              pdf_url: doResult.pdf_url,
+              expiresAt: doResult.expiresAt,
+              generationTime: doResult.generationTime || 0,
+              htmlHash: await hashHtmlContent(html),
+              htmlSize: new TextEncoder().encode(html).length,
+              pdfSize: 0, // Size not available when using R2 URL
+            };
+          } else if (doResult.pdfBuffer) {
+            // DO returned buffer - need to upload to R2
+            pdfResult = {
+              pdfBuffer: doResult.pdfBuffer,
+              generationTime: doResult.generationTime || 0,
+              htmlHash: await hashHtmlContent(html),
+              htmlSize: new TextEncoder().encode(html).length,
+              pdfSize: doResult.pdfBuffer.byteLength,
+            };
+          }
 
           logDurableObjectMetrics(doContext, doResult.generationTime || 0, logger);
         } else {
@@ -316,18 +337,32 @@ app.post('/api/generate', async (c) => {
 
     const pdfGenTime = Date.now() - pdfGenStartTime;
 
-    // 8. Upload to R2
-    const fileName = generatePdfFileName();
-    const uploadResult = await uploadPdfToR2({
-      bucket: c.env.PDF_STORAGE,
-      content: pdfResult.pdfBuffer,
-      fileName,
-      metadata: {
-        userId: authContext.userId,
-        apiKeyId: authContext.apiKeyId,
-        requestId,
-      },
-    });
+    // 8. Upload to R2 (if not already uploaded by Durable Object)
+    let uploadResult;
+    if (pdfResult.pdf_url) {
+      // PDF already uploaded to R2 by Durable Object
+      uploadResult = {
+        url: pdfResult.pdf_url,
+        expiresAt: pdfResult.expiresAt,
+        size: pdfResult.pdfSize || 0,
+        key: 'uploaded-by-do',
+        etag: '',
+      };
+    } else {
+      // Upload pdfBuffer to R2
+      const fileName = generatePdfFileName();
+      uploadResult = await uploadPdfToR2({
+        bucket: c.env.PDF_STORAGE,
+        content: pdfResult.pdfBuffer,
+        fileName,
+        userTier: authContext.subscriptionTier || 'free',
+        metadata: {
+          userId: authContext.userId,
+          apiKeyId: authContext.apiKeyId,
+          requestId,
+        },
+      });
+    }
 
     // 9. Increment usage quota
     await quotaService.incrementUsage(authContext.userId);

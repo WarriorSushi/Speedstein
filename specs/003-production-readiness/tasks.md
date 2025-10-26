@@ -121,17 +121,17 @@ This task list implements the Production Readiness feature, addressing critical 
 **Independent Test**: Call /api/generate endpoint, verify response contains `pdf_url` (not `pdfBuffer`), fetch URL to confirm PDF is accessible.
 
 **Tasks**:
-- [ ] T029 [US2] Configure R2 lifecycle policies via Cloudflare Dashboard (4 rules: free=1d, starter=7d, pro=30d, enterprise=90d)
-- [ ] T030 [US2] Locate BrowserPoolDO.generatePdf() or equivalent in apps/worker/src/durable-objects/BrowserPoolDO.ts
-- [ ] T031 [US2] Import uploadPdfToR2 function from apps/worker/src/lib/r2.ts into BrowserPoolDO.ts
-- [ ] T032 [US2] After page.pdf() call, add code to upload PDF to R2 with tier tag in apps/worker/src/durable-objects/BrowserPoolDO.ts
-- [ ] T033 [US2] Generate unique filename using crypto.randomUUID() + .pdf extension in apps/worker/src/durable-objects/BrowserPoolDO.ts
-- [ ] T034 [US2] Pass userTier (from subscription) to uploadPdfToR2() for lifecycle tagging in apps/worker/src/durable-objects/BrowserPoolDO.ts
-- [ ] T035 [US2] Change response to return pdf_url instead of pdfBuffer in apps/worker/src/durable-objects/BrowserPoolDO.ts
-- [ ] T036 [US2] Add expiresAt field to response based on tier retention period in apps/worker/src/durable-objects/BrowserPoolDO.ts
-- [ ] T037 [US2] Handle R2 upload failure gracefully (fallback to returning buffer + error log) in apps/worker/src/durable-objects/BrowserPoolDO.ts
-- [ ] T038 [P] [US2] Update REST API /api/generate handler to use new response format in apps/worker/src/index.ts
-- [ ] T039 [P] [US2] Update RPC PdfGeneratorApi.generatePdf() to return pdf_url in apps/worker/src/rpc/PdfGeneratorApi.ts
+- [X] T029 [US2] Configure R2 lifecycle policies via Cloudflare Dashboard (4 rules: free=1d, starter=7d, pro=30d, enterprise=90d)
+- [X] T030 [US2] Locate BrowserPoolDO.generatePdf() or equivalent in apps/worker/src/durable-objects/BrowserPoolDO.ts
+- [X] T031 [US2] Import uploadPdfToR2 function from apps/worker/src/lib/r2.ts into BrowserPoolDO.ts
+- [X] T032 [US2] After page.pdf() call, add code to upload PDF to R2 with tier tag in apps/worker/src/durable-objects/BrowserPoolDO.ts
+- [X] T033 [US2] Generate unique filename using crypto.randomUUID() + .pdf extension in apps/worker/src/durable-objects/BrowserPoolDO.ts
+- [X] T034 [US2] Pass userTier (from subscription) to uploadPdfToR2() for lifecycle tagging in apps/worker/src/durable-objects/BrowserPoolDO.ts
+- [X] T035 [US2] Change response to return pdf_url instead of pdfBuffer in apps/worker/src/durable-objects/BrowserPoolDO.ts
+- [X] T036 [US2] Add expiresAt field to response based on tier retention period in apps/worker/src/durable-objects/BrowserPoolDO.ts
+- [X] T037 [US2] Handle R2 upload failure gracefully (fallback to returning buffer + error log) in apps/worker/src/durable-objects/BrowserPoolDO.ts
+- [X] T038 [P] [US2] Update REST API /api/generate handler to use new response format in apps/worker/src/index.ts
+- [X] T039 [P] [US2] Update RPC PdfGeneratorApi.generatePdf() to return pdf_url in apps/worker/src/rpc/PdfGeneratorApi.ts
 - [ ] T040 [US2] Test PDF upload by generating test PDF and checking R2 bucket (wrangler r2 object list speedstein-pdfs)
 - [ ] T041 [US2] Test CDN URL access by fetching pdf_url in browser or curl
 - [ ] T042 [US2] Test lifecycle policy by verifying free tier PDF expires after 1 day (manual check after 25 hours)

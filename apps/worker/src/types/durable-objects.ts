@@ -87,6 +87,10 @@ export interface PdfOptions {
   headerTemplate?: string;
   /** Footer template */
   footerTemplate?: string;
+  /** User's pricing tier for R2 lifecycle tagging (free, starter, pro, enterprise) */
+  userTier?: string;
+  /** User ID for metadata and tracking */
+  userId?: string;
 }
 
 /**
@@ -97,6 +101,8 @@ export interface PdfResult {
   success: boolean;
   /** URL to the generated PDF (if successful) */
   pdfUrl?: string;
+  /** ISO 8601 timestamp when the PDF will expire and be deleted */
+  expiresAt?: string;
   /** Time taken to generate the PDF in milliseconds */
   generationTime: number;
   /** Error message (if failed) */
