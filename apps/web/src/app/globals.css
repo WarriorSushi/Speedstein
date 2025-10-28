@@ -4,6 +4,19 @@
 
 @layer base {
   :root {
+    /* Gray scale using OKLCH - Perceptually uniform */
+    --gray-50: 98% 0.01 264;
+    --gray-100: 95% 0.01 264;
+    --gray-200: 90% 0.01 264;
+    --gray-300: 80% 0.01 264;
+    --gray-400: 65% 0.01 264;
+    --gray-500: 50% 0.01 264;
+    --gray-600: 40% 0.01 264;
+    --gray-700: 30% 0.01 264;
+    --gray-800: 20% 0.01 264;
+    --gray-900: 15% 0.01 264;
+    --gray-950: 10% 0.01 264;
+
     /* Base colors using OKLCH - Light mode */
     --background: 100% 0 0;
     --foreground: 20% 0 0;
@@ -28,6 +41,14 @@
     --destructive: 55% 0.22 25;
     --destructive-foreground: 100% 0 0;
 
+    /* Success colors - Green */
+    --success: 60% 0.18 140;
+    --success-foreground: 100% 0 0;
+
+    /* Warning colors - Yellow */
+    --warning: 70% 0.15 60;
+    --warning-foreground: 20% 0 0;
+
     /* Border and input */
     --border: 90% 0 0;
     --input: 90% 0 0;
@@ -45,6 +66,19 @@
   }
 
   .dark {
+    /* Gray scale using OKLCH - Dark mode (inverted lightness) */
+    --gray-50: 10% 0.01 264;
+    --gray-100: 15% 0.01 264;
+    --gray-200: 20% 0.01 264;
+    --gray-300: 30% 0.01 264;
+    --gray-400: 40% 0.01 264;
+    --gray-500: 50% 0.01 264;
+    --gray-600: 65% 0.01 264;
+    --gray-700: 80% 0.01 264;
+    --gray-800: 90% 0.01 264;
+    --gray-900: 95% 0.01 264;
+    --gray-950: 98% 0.01 264;
+
     /* Base colors using OKLCH - Dark mode */
     --background: 20% 0 0;
     --foreground: 95% 0 0;
@@ -68,6 +102,14 @@
     /* Destructive colors - Red */
     --destructive: 60% 0.20 25;
     --destructive-foreground: 100% 0 0;
+
+    /* Success colors - Green */
+    --success: 70% 0.16 140;
+    --success-foreground: 100% 0 0;
+
+    /* Warning colors - Yellow */
+    --warning: 80% 0.13 60;
+    --warning-foreground: 20% 0 0;
 
     /* Border and input */
     --border: 30% 0 0;

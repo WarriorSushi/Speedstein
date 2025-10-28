@@ -6,7 +6,8 @@
  */
 
 import { newWorkersRpcResponse } from 'capnweb';
-import { PdfGeneratorApi } from '../rpc/PdfGeneratorApi';
+import { PdfGeneratorApi } from '../rpc/pdf-generator-api';
+import type { Env } from '../types/env';
 
 /**
  * WebSocket heartbeat configuration
@@ -46,10 +47,7 @@ function generateSessionId(): string {
  */
 export async function handleWebSocketUpgrade(
   request: Request,
-  env: {
-    BROWSER_POOL_DO: DurableObjectNamespace;
-    [key: string]: any;
-  }
+  env: Env
 ): Promise<Response> {
   try {
     // Extract user ID from query params or headers

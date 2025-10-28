@@ -4,9 +4,12 @@
  * Implements sliding window rate limiting using Cloudflare KV.
  * Separate from quota enforcement - this prevents abuse/DDoS.
  *
+ * Supports tier-based rate limiting based on user's plan.
+ *
  * @packageDocumentation
  */
 import { RateLimitExceededError } from '@speedstein/shared/lib/errors';
+import { TIER_QUOTAS } from '../lib/constants';
 /**
  * Rate Limiter
  *
@@ -168,4 +171,55 @@ export function createApiRateLimiter(kv) {
         windowSeconds: 60,
         keyPrefix: 'api:ratelimit:',
     });
+}
+/**
+ * Create tier-based rate limiter
+ *
+ * Creates a rate limiter with limits based on the user's pricing tier.
+ * Uses token bucket algorithm with 2x burst allowance.
+ *
+ * @param kv - KV namespace binding
+ * @param planTier - User's pricing tier
+ * @returns Configured rate limiter with tier-specific limits
+ *
+ * @example
+ * ```typescript
+ * const limiter = createTierBasedRateLimiter(env.RATE_LIMIT_KV, 'pro');
+ * const result = await limiter.checkLimit('user_123');
+ * ```
+ */
+export function createTierBasedRateLimiter(kv, planTier = 'free') {
+    const tierConfig = TIER_QUOTAS[planTier];
+    // Token bucket with 2x burst allowance
+    // This allows bursts up to 2x the rate limit
+    const burstMultiplier = 2;
+    const maxRequests = tierConfig.requestsPerMinute * burstMultiplier;
+    return new RateLimiter({
+        kv,
+        maxRequests,
+        windowSeconds: 60, // 1 minute window
+        keyPrefix: `tier:${planTier}:ratelimit:`,
+    });
+}
+/**
+ * Get rate limit for a pricing tier
+ *
+ * Returns the base rate limit (requests per minute) for a tier.
+ *
+ * @param planTier - Pricing tier
+ * @returns Requests per minute limit
+ */
+export function getTierRateLimit(planTier) {
+    return TIER_QUOTAS[planTier].requestsPerMinute;
+}
+/**
+ * Get burst allowance for a pricing tier
+ *
+ * Returns the maximum burst requests (2x base rate).
+ *
+ * @param planTier - Pricing tier
+ * @returns Maximum burst requests
+ */
+export function getTierBurstLimit(planTier) {
+    return TIER_QUOTAS[planTier].requestsPerMinute * 2;
 }

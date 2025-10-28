@@ -41,6 +41,11 @@ export enum ErrorCode {
   NOT_FOUND = 'NOT_FOUND',
   USER_NOT_FOUND = 'USER_NOT_FOUND',
   RESOURCE_NOT_FOUND = 'RESOURCE_NOT_FOUND',
+
+  // Payment errors (402/400)
+  PAYMENT_REQUIRED = 'PAYMENT_REQUIRED',
+  INVALID_WEBHOOK_SIGNATURE = 'INVALID_WEBHOOK_SIGNATURE',
+  SUBSCRIPTION_ERROR = 'SUBSCRIPTION_ERROR',
 }
 
 /**
@@ -320,6 +325,56 @@ export class NotFoundError extends ApiError {
   constructor(resource: string, details?: ErrorDetails) {
     super(ErrorCode.NOT_FOUND, `${resource} not found`, 404, details);
     this.name = 'NotFoundError';
+  }
+}
+
+/**
+ * Payment Required Error (402)
+ * Thrown when a paid feature is accessed with a free account
+ */
+export class PaymentRequiredError extends ApiError {
+  constructor(feature: string, details?: ErrorDetails) {
+    super(
+      ErrorCode.PAYMENT_REQUIRED,
+      `This feature requires a paid subscription: ${feature}`,
+      402,
+      {
+        feature,
+        upgradeUrl: 'https://speedstein.com/pricing',
+        ...details,
+      }
+    );
+    this.name = 'PaymentRequiredError';
+  }
+}
+
+/**
+ * Invalid Webhook Signature Error (400)
+ * Thrown when payment webhook signature verification fails
+ */
+export class InvalidWebhookSignatureError extends ApiError {
+  constructor(details?: ErrorDetails) {
+    super(
+      ErrorCode.INVALID_WEBHOOK_SIGNATURE,
+      'Webhook signature verification failed',
+      400,
+      {
+        hint: 'Ensure you are using the correct webhook secret from your payment provider',
+        ...details,
+      }
+    );
+    this.name = 'InvalidWebhookSignatureError';
+  }
+}
+
+/**
+ * Subscription Error (400)
+ * Thrown when subscription operations fail
+ */
+export class SubscriptionError extends ApiError {
+  constructor(message: string, details?: ErrorDetails) {
+    super(ErrorCode.SUBSCRIPTION_ERROR, message, 400, details);
+    this.name = 'SubscriptionError';
   }
 }
 

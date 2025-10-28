@@ -13,6 +13,8 @@
   "dependencies": {
     "@cloudflare/puppeteer": "^1.0.4",
     "@cloudflare/workers-types": "^4.20231218.0",
+    "@sentry/browser": "^10.22.0",
+    "@sentry/core": "^10.22.0",
     "@supabase/supabase-js": "^2.39.0",
     "capnweb": "^0.1.0",
     "dodopayments": "^2.3.0",

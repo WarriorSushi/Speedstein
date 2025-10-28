@@ -5,7 +5,7 @@
  * Implements heartbeat mechanism and graceful cleanup.
  */
 import { newWorkersRpcResponse } from 'capnweb';
-import { PdfGeneratorApi } from '../rpc/PdfGeneratorApi';
+import { PdfGeneratorApi } from '../rpc/pdf-generator-api';
 /**
  * WebSocket heartbeat configuration
  */

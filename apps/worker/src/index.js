@@ -12,13 +12,14 @@ import { PdfService } from './services/pdf.service';
 import { AuthService } from './services/auth.service';
 import { QuotaService } from './services/quota.service';
 import { SimpleBrowserService } from './lib/browser';
-import { RateLimiter } from './middleware/rate-limit';
+import { RateLimiter, createTierBasedRateLimiter } from './middleware/rate-limit';
 import { uploadPdfToR2, generatePdfFileName } from './lib/r2';
 import { createLogger } from './lib/logger';
 import { generateRequestId, hashHtmlContent } from './lib/crypto';
 import { GeneratePdfSchema } from '@speedstein/shared/lib/validation';
 import { handleWebSocketUpgrade } from './middleware/websocket';
-import { createDurableObjectContext, generatePdfThroughDO, isDurableObjectsEnabled, logDurableObjectMetrics, extractUserIdForRouting, } from './middleware/durable-object-routing';
+import { shouldUseDO, getFeatureFlagContext } from './lib/feature-flags';
+import { createDurableObjectContext, generatePdfThroughDO, logDurableObjectMetrics, extractUserIdForRouting, } from './middleware/durable-object-routing';
 import { UnauthorizedError, QuotaExceededError, RateLimitExceededError, ValidationError, } from '@speedstein/shared/lib/errors';
 // Export Durable Object class for Cloudflare Workers runtime
 export { BrowserPoolDO } from './durable-objects/BrowserPoolDO';
@@ -107,13 +108,15 @@ app.post('/api/generate', async (c) => {
     const logger = createLogger(requestId);
     const startTime = Date.now();
     try {
-        // 1. Extract API key from Authorization header
+        // 1. Check for demo mode (X-Demo-Request header)
+        const isDemoRequest = c.req.header('X-Demo-Request') === 'true';
+        // 2. Extract API key from Authorization header (skip for demo requests)
         const authHeader = c.req.header('Authorization');
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        if (!isDemoRequest && (!authHeader || !authHeader.startsWith('Bearer '))) {
             throw new UnauthorizedError('Missing or invalid Authorization header');
         }
-        const apiKey = authHeader.substring(7); // Remove "Bearer " prefix
-        // 2. Parse and validate request body
+        const apiKey = isDemoRequest ? null : authHeader?.substring(7); // Remove "Bearer " prefix
+        // 3. Parse and validate request body
         const body = await c.req.json();
         const validationResult = GeneratePdfSchema.safeParse(body);
         if (!validationResult.success) {
@@ -121,70 +124,110 @@ app.post('/api/generate', async (c) => {
         }
         const { html, options } = validationResult.data;
         // 3. Initialize services
-        const authService = new AuthService(c.env.SUPABASE_URL, c.env.SUPABASE_SERVICE_ROLE_KEY);
-        // Create Supabase client for quota service
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_SERVICE_ROLE_KEY);
-        const quotaService = new QuotaService(supabase);
         const browserService = getBrowserService(c.env);
         const pdfService = new PdfService(browserService);
-        // 4. Authenticate API key
-        const authContext = await authService.validateApiKey(apiKey);
-        logger.logAuth({
-            success: true,
-            userId: authContext.userId,
-        });
-        // 5. Check rate limit (anti-DDoS protection)
-        const rateLimiter = new RateLimiter({
-            kv: c.env.RATE_LIMIT_KV,
-            maxRequests: 1000, // 1000 requests per minute
-            windowSeconds: 60,
-            keyPrefix: 'api:ratelimit:',
-        });
-        const rateLimitResult = await rateLimiter.checkLimit(authContext.userId);
-        logger.logRateLimit({
-            identifier: authContext.userId,
-            allowed: rateLimitResult.allowed,
-            currentCount: rateLimitResult.currentCount,
-            limit: rateLimitResult.limit,
-            retryAfter: rateLimitResult.retryAfter,
-        });
-        if (!rateLimitResult.allowed) {
-            throw new RateLimitExceededError(`Rate limit exceeded. Try again in ${rateLimitResult.retryAfter} seconds.`, rateLimitResult.retryAfter);
+        // 4. Setup auth context (demo or authenticated)
+        let authContext;
+        let quotaCheck;
+        let rateLimitResult;
+        if (isDemoRequest) {
+            // Demo mode: no authentication, no quota, limited rate limit
+            logger.info('Demo request - skipping authentication');
+            authContext = {
+                userId: 'demo-user',
+                apiKeyId: 'demo',
+                apiKeyName: 'Demo',
+                planTier: 'free',
+            };
+            // Demo rate limit: 5 requests per minute
+            const demoRateLimiter = new RateLimiter({
+                kv: c.env.RATE_LIMIT_KV,
+                maxRequests: 5,
+                windowSeconds: 60,
+            });
+            rateLimitResult = await demoRateLimiter.checkLimit('demo-requests');
+            if (!rateLimitResult.allowed) {
+                throw new RateLimitExceededError(`Demo rate limit exceeded. Try again in ${rateLimitResult.retryAfter} seconds.`, rateLimitResult.retryAfter);
+            }
+            // Demo quota: no tracking
+            quotaCheck = {
+                allowed: true,
+                quota: 1000000,
+                used: 0,
+                remaining: 1000000,
+                percentage: 0,
+                resetDate: null,
+            };
         }
-        // 6. Check quota
-        const quotaCheck = await quotaService.checkQuota(authContext.userId);
-        logger.logQuotaCheck({
-            userId: authContext.userId,
-            quotaUsed: quotaCheck.used,
-            quotaLimit: quotaCheck.quota,
-            allowed: quotaCheck.allowed,
-            percentage: quotaCheck.percentage,
-        });
-        if (!quotaCheck.allowed) {
-            throw new QuotaExceededError(quotaCheck.quota, quotaCheck.used, quotaCheck.resetDate || new Date().toISOString());
+        else {
+            // Authenticated mode: full auth + quota checks
+            const authService = new AuthService(c.env.SUPABASE_URL, c.env.SUPABASE_SERVICE_ROLE_KEY);
+            const { createClient } = await import('@supabase/supabase-js');
+            const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_SERVICE_ROLE_KEY);
+            const quotaService = new QuotaService(supabase);
+            // Authenticate API key
+            authContext = await authService.validateApiKey(apiKey);
+            logger.logAuth({
+                success: true,
+                userId: authContext.userId,
+            });
+            // Check rate limit (tier-based with burst allowance)
+            const planTier = (authContext.planTier || 'free');
+            const rateLimiter = createTierBasedRateLimiter(c.env.RATE_LIMIT_KV, planTier);
+            rateLimitResult = await rateLimiter.checkLimit(authContext.userId);
+            logger.logRateLimit({
+                identifier: authContext.userId,
+                allowed: rateLimitResult.allowed,
+                currentCount: rateLimitResult.currentCount,
+                limit: rateLimitResult.limit,
+                retryAfter: rateLimitResult.retryAfter,
+            });
+            if (!rateLimitResult.allowed) {
+                throw new RateLimitExceededError(`Rate limit exceeded. Try again in ${rateLimitResult.retryAfter} seconds.`, rateLimitResult.retryAfter);
+            }
+            // Check quota
+            quotaCheck = await quotaService.checkQuota(authContext.userId);
+            logger.logQuotaCheck({
+                userId: authContext.userId,
+                quotaUsed: quotaCheck.used,
+                quotaLimit: quotaCheck.quota,
+                allowed: quotaCheck.allowed,
+                percentage: quotaCheck.percentage,
+            });
+            if (!quotaCheck.allowed) {
+                throw new QuotaExceededError(quotaCheck.quota, quotaCheck.used, quotaCheck.resetDate || new Date().toISOString());
+            }
         }
         // 7. Generate PDF via Durable Objects (with fallback to SimpleBrowserService)
         const pdfGenStartTime = Date.now();
         let pdfResult;
         let usedDurableObjects = false;
-        // Check if Durable Objects routing is enabled (feature flag)
-        const doEnabled = isDurableObjectsEnabled(c.env);
-        if (doEnabled && c.env.BROWSER_POOL_DO) {
+        // Check if Durable Objects routing is enabled (feature flag + gradual rollout)
+        const featureFlags = getFeatureFlagContext(c.env, authContext.userId);
+        const shouldUsePooling = shouldUseDO(c.env, authContext.userId);
+        logger.info('Feature flags evaluation', {
+            ...featureFlags,
+            isDemoRequest,
+            requestId,
+        });
+        if (shouldUsePooling && c.env.BROWSER_POOL_DO) {
             try {
                 // Create Durable Object context for user routing
                 const userId = extractUserIdForRouting(authContext);
-                const doContext = createDurableObjectContext(userId, c.env.BROWSER_POOL_DO, doEnabled);
+                const doContext = createDurableObjectContext(userId, c.env.BROWSER_POOL_DO, shouldUsePooling);
                 logger.info('Routing PDF generation through Durable Objects', {
                     userId,
                     doId: doContext.doId,
+                    rolloutStage: featureFlags.rolloutStage,
                     requestId,
                 });
                 // Add userTier to options for R2 lifecycle tagging
+                // For demo requests, use returnBuffer mode to skip R2 upload (faster!)
                 const optionsWithTier = {
                     ...options,
                     userTier: authContext.planTier || 'free',
                     userId: authContext.userId,
+                    returnBuffer: isDemoRequest, // Skip R2 for demos - return buffer directly
                 };
                 // Generate PDF through Durable Object
                 const doResult = await generatePdfThroughDO(doContext, html, optionsWithTier);
@@ -257,8 +300,21 @@ app.post('/api/generate', async (c) => {
             throw new Error('PDF generation failed - no result returned');
         }
         // 8. Upload to R2 (if not already uploaded by Durable Object)
+        // For demo requests with returnBuffer, skip R2 upload entirely for speed
         let uploadResult;
-        if (pdfResult.pdf_url) {
+        let directBuffer = null;
+        if (isDemoRequest && pdfResult.pdfBuffer) {
+            // FAST PATH: Demo with buffer - skip R2 upload entirely!
+            directBuffer = pdfResult.pdfBuffer;
+            uploadResult = {
+                url: 'direct-buffer', // Not used for demo
+                expiresAt: new Date(Date.now() + 3600000).toISOString(), // 1 hour
+                size: pdfResult.pdfSize || 0,
+                key: 'direct-buffer',
+                etag: '',
+            };
+        }
+        else if (pdfResult.pdf_url) {
             // PDF already uploaded to R2 by Durable Object
             uploadResult = {
                 url: pdfResult.pdf_url,
@@ -286,8 +342,13 @@ app.post('/api/generate', async (c) => {
         else {
             throw new Error('PDF generation failed - no URL or buffer returned');
         }
-        // 9. Increment usage quota
-        await quotaService.incrementUsage(authContext.userId);
+        // 9. Increment usage quota (skip for demo requests)
+        if (!isDemoRequest) {
+            const { createClient } = await import('@supabase/supabase-js');
+            const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_SERVICE_ROLE_KEY);
+            const quotaService = new QuotaService(supabase);
+            await quotaService.incrementUsage(authContext.userId);
+        }
         // 10. Log success
         logger.logPdfGeneration({
             generationTimeMs: pdfGenTime,
@@ -301,9 +362,49 @@ app.post('/api/generate', async (c) => {
             landscape: options?.orientation === 'landscape',
             success: true,
         });
-        // 11. Return success response
+        // 11. Return success response with quota info
         const totalTime = Date.now() - startTime;
-        return c.json({
+        if (isDemoRequest) {
+            // OPTIMIZED Demo response: Return PDF buffer directly (no R2 round-trip!)
+            // This eliminates 2-3s of R2 upload/fetch latency
+            let pdfBuffer;
+            if (directBuffer) {
+                // FAST PATH: We already have the buffer from returnBuffer mode
+                pdfBuffer = directBuffer instanceof Uint8Array ? directBuffer.buffer : directBuffer;
+            }
+            else {
+                // FALLBACK: Fetch from R2 (slower, but handles legacy cases)
+                const fileName = uploadResult.key === 'uploaded-by-do'
+                    ? uploadResult.url.split('/').pop() // Extract filename from CDN URL
+                    : uploadResult.key;
+                const r2Object = await c.env.PDF_STORAGE.get(fileName);
+                if (!r2Object) {
+                    logger.error('PDF uploaded to R2 but retrieval failed', {
+                        fileName,
+                        requestId,
+                    });
+                    throw new Error('PDF generation succeeded but file retrieval failed');
+                }
+                pdfBuffer = await r2Object.arrayBuffer();
+            }
+            return new Response(pdfBuffer, {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/pdf',
+                    'Content-Disposition': `attachment; filename="speedstein-demo-${Date.now()}.pdf"`,
+                    'X-Demo-Request': 'true',
+                    'X-Generation-Time': pdfGenTime.toString(),
+                    'X-Request-ID': requestId,
+                    'X-PDF-Size': pdfBuffer.byteLength.toString(),
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                },
+            });
+        }
+        // Authenticated response: full quota tracking
+        const updatedUsage = quotaCheck.used + 1;
+        const updatedPercentage = Math.round((updatedUsage / quotaCheck.quota) * 100);
+        const shouldShowUpgrade = updatedPercentage >= 80;
+        const responseBody = {
             success: true,
             data: {
                 url: uploadResult.url,
@@ -312,8 +413,33 @@ app.post('/api/generate', async (c) => {
                 expiresAt: uploadResult.expiresAt,
             },
             requestId,
-        }, 200, {
+            quota: {
+                limit: quotaCheck.quota,
+                used: updatedUsage,
+                remaining: Math.max(0, quotaCheck.remaining - 1),
+                percentage: updatedPercentage,
+                resetDate: quotaCheck.resetDate,
+            },
+        };
+        // Add upgrade prompt when ≥80% quota used
+        if (shouldShowUpgrade) {
+            responseBody.upgradePrompt = {
+                message: `You've used ${updatedPercentage}% of your monthly quota. Consider upgrading for more PDFs.`,
+                upgradeUrl: 'https://speedstein.com/pricing',
+                currentTier: authContext.planTier || 'free',
+                suggestedTier: authContext.planTier === 'free' ? 'starter' : authContext.planTier === 'starter' ? 'pro' : 'enterprise',
+            };
+        }
+        // Get rate limiter for headers
+        const planTier = (authContext.planTier || 'free');
+        const rateLimiter = createTierBasedRateLimiter(c.env.RATE_LIMIT_KV, planTier);
+        return c.json(responseBody, 200, {
             ...rateLimiter.getRateLimitHeaders(rateLimitResult),
+            'X-Browser-Pool-Hit': usedDurableObjects ? 'true' : 'false',
+            'X-Quota-Limit': quotaCheck.quota.toString(),
+            'X-Quota-Used': updatedUsage.toString(),
+            'X-Quota-Remaining': Math.max(0, quotaCheck.remaining - 1).toString(),
+            'X-Quota-Reset': quotaCheck.resetDate || '',
         });
     }
     catch (error) {

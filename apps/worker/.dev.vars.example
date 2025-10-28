@@ -1,0 +1,22 @@
+# Cloudflare R2 Credentials (for local development only)
+# These are automatically available in production via Cloudflare Workers
+R2_ACCESS_KEY_ID=your_r2_access_key
+R2_SECRET_ACCESS_KEY=your_r2_secret_key
+R2_ENDPOINT=https://your-account-id.r2.cloudflarestorage.com
+
+# Cloudflare Worker Token (if needed for deployment)
+CLOUDFLARE_API_TOKEN=your_cloudflare_api_token
+
+# Supabase Configuration
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Sentry (Error Tracking)
+SENTRY_DSN=https://abc123@sentry.io/123457
+
+# DodoPayments (Billing)
+DODO_WEBHOOK_SECRET=whsec_...
+
+# R2 Storage Configuration
+R2_BUCKET_NAME=speedstein-pdfs
+R2_ACCOUNT_ID=your_cloudflare_account_id

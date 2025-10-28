@@ -13,6 +13,8 @@
     "typecheck": "pnpm --recursive typecheck"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
+    "@playwright/test": "^1.56.1",
     "@supabase/supabase-js": "^2.76.1",
     "@types/node": "^20.10.0",
     "@typescript-eslint/eslint-plugin": "^8.46.2",

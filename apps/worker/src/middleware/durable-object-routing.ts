@@ -7,6 +7,7 @@
 
 import { getDOStubForUser } from '../lib/browser-pool-manager';
 import type { Browser } from '@cloudflare/puppeteer';
+import type { Env } from '../types/env';
 
 /**
  * Durable Object routing context
@@ -218,10 +219,7 @@ export async function generatePdfThroughDO(
  * @param env - Environment bindings
  * @returns Whether DO routing is enabled
  */
-export function isDurableObjectsEnabled(env: {
-  ENABLE_DURABLE_OBJECTS?: string;
-  [key: string]: any;
-}): boolean {
+export function isDurableObjectsEnabled(env: Env): boolean {
   // Default to true if not specified (feature flag)
   const enabled = env.ENABLE_DURABLE_OBJECTS;
 

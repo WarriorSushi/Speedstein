@@ -5,6 +5,9 @@ import { ThemeProvider } from '@/components/theme-provider'
 export const metadata: Metadata = {
   title: 'Speedstein - Lightning-Fast PDF Generation API',
   description: 'Generate beautiful PDFs from HTML in under 2 seconds',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({
@@ -14,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
         </ThemeProvider>

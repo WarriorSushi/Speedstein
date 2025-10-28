@@ -57,8 +57,14 @@ export const CreateApiKeySchema = z.object({
  * Schema for user signup
  */
 export const SignupSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
+  email: z.string().email('Invalid email address').toLowerCase(),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(100, 'Password must be less than 100 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
   name: z.string().min(1).max(100).optional(),
 })
 
@@ -66,8 +72,45 @@ export const SignupSchema = z.object({
  * Schema for user login
  */
 export const LoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().email('Invalid email address').toLowerCase(),
+  password: z.string().min(1, 'Password is required'),
+})
+
+/**
+ * Schema for password reset request
+ */
+export const ResetPasswordRequestSchema = z.object({
+  email: z.string().email('Invalid email address').toLowerCase(),
+})
+
+/**
+ * Schema for password reset confirmation
+ */
+export const ResetPasswordSchema = z.object({
+  token: z.string().min(1, 'Reset token is required'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(100, 'Password must be less than 100 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
+})
+
+/**
+ * Schema for email verification
+ */
+export const VerifyEmailSchema = z.object({
+  token: z.string().min(1, 'Verification token is required'),
+})
+
+/**
+ * Schema for user profile update
+ */
+export const UpdateProfileSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  email: z.string().email('Invalid email address').toLowerCase().optional(),
+  darkModePreference: z.boolean().optional(),
 })
 
 /**
@@ -91,3 +134,107 @@ export const UpgradeSubscriptionSchema = z.object({
 export const DowngradeSubscriptionSchema = z.object({
   newPlan: z.enum(['free', 'starter']),
 })
+
+/**
+ * Schema for payment webhook events
+ */
+export const PaymentWebhookSchema = z.object({
+  eventId: z.string().min(1, 'Event ID is required'),
+  eventType: z.enum([
+    'subscription.created',
+    'subscription.updated',
+    'payment.succeeded',
+    'payment.failed',
+    'subscription.cancelled',
+  ]),
+  userId: z.string().uuid('Invalid user ID'),
+  data: z.record(z.unknown()),
+  signature: z.string().min(1, 'Webhook signature is required'),
+})
+
+/**
+ * Validation Helper Functions
+ */
+
+/**
+ * Safe parse with user-friendly error messages
+ */
+export function validateInput<T extends z.ZodType>(
+  schema: T,
+  data: unknown
+): {
+  success: boolean
+  data?: z.infer<T>
+  errors?: Record<string, string>
+} {
+  const result = schema.safeParse(data)
+
+  if (result.success) {
+    return {
+      success: true,
+      data: result.data,
+    }
+  }
+
+  // Convert Zod errors to user-friendly format
+  const errors: Record<string, string> = {}
+
+  result.error.issues.forEach((issue) => {
+    const path = issue.path.join('.')
+    errors[path] = issue.message
+  })
+
+  return {
+    success: false,
+    errors,
+  }
+}
+
+/**
+ * Validate and throw on error
+ */
+export function validateOrThrow<T extends z.ZodType>(schema: T, data: unknown): z.infer<T> {
+  return schema.parse(data)
+}
+
+/**
+ * Email validation helper
+ */
+export function isValidEmail(email: string): boolean {
+  return z.string().email().safeParse(email).success
+}
+
+/**
+ * Password strength validation helper
+ */
+export function validatePasswordStrength(password: string): {
+  valid: boolean
+  errors: string[]
+} {
+  const errors: string[] = []
+
+  if (password.length < 8) {
+    errors.push('Password must be at least 8 characters')
+  }
+
+  if (password.length > 100) {
+    errors.push('Password must be less than 100 characters')
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter')
+  }
+
+  if (!/[a-z]/.test(password)) {
+    errors.push('Password must contain at least one lowercase letter')
+  }
+
+  if (!/[0-9]/.test(password)) {
+    errors.push('Password must contain at least one number')
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  }
+}
