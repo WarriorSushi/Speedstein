@@ -145,7 +145,16 @@ export class BrowserPoolDO {
       const startTime = Date.now();
 
       // Generate PDF using the browser instance
-      const page = await browser.newPage();
+      let page;
+      try {
+        page = await browser.newPage();
+      } catch (error) {
+        // Browser connection closed - mark as failed and get new one
+        console.error('[BrowserPoolDO] Browser.newPage() failed, browser connection closed:', error);
+        await this.markBrowserAsFailed(browser);
+        throw new Error(`Protocol error: Connection closed.`);
+      }
+
       try {
         // Set content with timeout - don't wait for networkidle0 (can hang)
         await page.setContent(html, {

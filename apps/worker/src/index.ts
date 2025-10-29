@@ -130,8 +130,9 @@ app.post('/warmup', async (c) => {
   try {
     logger.info('[Warmup] Request received');
 
-    // Get browser pool DO
-    const userId = 'warmup-user'; // Use a dedicated warmup user
+    // IMPORTANT: Use 'demo-user' to share browser pool with demo requests!
+    // This ensures warmup benefits both REST and RPC demo requests
+    const userId = 'demo-user';
     const doId = c.env.BROWSER_POOL_DO.idFromName(`browser-pool-${userId}`);
     const stub = c.env.BROWSER_POOL_DO.get(doId);
 

@@ -233,7 +233,7 @@ export function MonacoDemo({
                 </Button>
                 {lastRpcTime !== null && lastRpcTime !== undefined && (
                   <div className="text-center text-sm font-bold text-green-600">
-                    {lastRpcTime}ms ✓
+                    {lastRpcTime}ms ({(lastRpcTime / 1000).toFixed(2)}s) ✓
                   </div>
                 )}
               </div>
@@ -262,7 +262,7 @@ export function MonacoDemo({
               </Button>
               {lastRestTime !== null && lastRestTime !== undefined && (
                 <div className="text-center text-sm font-semibold text-muted-foreground">
-                  {lastRestTime}ms
+                  {lastRestTime}ms ({(lastRestTime / 1000).toFixed(2)}s)
                 </div>
               )}
             </div>
