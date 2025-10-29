@@ -36,6 +36,7 @@ import {
 } from '@speedstein/shared/lib/errors';
 import type { PdfOptions } from '@speedstein/shared/types/pdf';
 import type { Env } from './types/env';
+import { initSentry, captureError } from './lib/monitoring';
 
 // Export Durable Object class for Cloudflare Workers runtime
 export { BrowserPoolDO } from './durable-objects/BrowserPoolDO';
@@ -44,6 +45,17 @@ export { BrowserPoolDO } from './durable-objects/BrowserPoolDO';
  * Hono app instance with environment bindings
  */
 const app = new Hono<{ Bindings: Env }>();
+
+/**
+ * Initialize Sentry on first request (if DSN configured)
+ */
+let sentryInitialized = false;
+function ensureSentryInitialized(env: Env) {
+  if (!sentryInitialized && env.SENTRY_DSN) {
+    initSentry(env.SENTRY_DSN, env.ENVIRONMENT || 'production');
+    sentryInitialized = true;
+  }
+}
 
 /**
  * Create browser service for this request
@@ -132,6 +144,9 @@ app.post('/api/generate', async (c) => {
   const requestId = generateRequestId();
   const logger = createLogger(requestId);
   const startTime = Date.now();
+
+  // Initialize Sentry if configured
+  ensureSentryInitialized(c.env);
 
   try {
     // 1. Check for demo mode (X-Demo-Request header)
@@ -630,6 +645,16 @@ app.post('/api/generate', async (c) => {
       requestId,
       durationMs: totalTime,
     });
+
+    // Capture error in Sentry
+    if (error instanceof Error) {
+      captureError(error, {
+        requestId,
+        endpoint: '/api/generate',
+        method: 'POST',
+        durationMs: totalTime,
+      });
+    }
 
     return c.json(
       {
