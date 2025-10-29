@@ -74,10 +74,6 @@ export async function handleWebSocketUpgrade(
     // Create PdfGeneratorApi RPC target
     const pdfApi = new PdfGeneratorApi(userId, env.BROWSER_POOL_DO, sessionId);
 
-    // Initialize Cap'n Web RPC response
-    // This handles the RPC protocol over WebSocket
-    const rpcResponse = newWorkersRpcResponse(server as any, pdfApi);
-
     // Track connection
     const connection: WebSocketConnection = {
       socket: server,
@@ -86,6 +82,54 @@ export async function handleWebSocketUpgrade(
       lastHeartbeat: Date.now(),
     };
     activeConnections.set(sessionId, connection);
+
+    // Set up message handler for JSON RPC (simplified protocol for demo)
+    server.addEventListener('message', async (event) => {
+      try {
+        const data = typeof event.data === 'string' ? event.data : await new Response(event.data).text();
+        const message = JSON.parse(data);
+
+        // Handle heartbeat pong
+        if (message.type === 'pong') {
+          connection.lastHeartbeat = Date.now();
+          console.log(`[WebSocket ${sessionId}] Heartbeat pong received`);
+          return;
+        }
+
+        // Handle JSON RPC call (simplified format)
+        if (message.method === 'generatePdf' && message.requestId) {
+          console.log(`[WebSocket ${sessionId}] RPC call: ${message.method}`);
+
+          try {
+            // Call the PDF API
+            const result = await pdfApi.generatePdf(
+              message.params.html,
+              message.params.options || {}
+            );
+
+            // Send response
+            server.send(JSON.stringify({
+              requestId: message.requestId,
+              result: {
+                success: true,
+                ...result,
+              },
+            }));
+          } catch (error) {
+            console.error(`[WebSocket ${sessionId}] RPC error:`, error);
+            server.send(JSON.stringify({
+              requestId: message.requestId,
+              result: {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              },
+            }));
+          }
+        }
+      } catch (error) {
+        console.error(`[WebSocket ${sessionId}] Message handling error:`, error);
+      }
+    });
 
     // Set up heartbeat mechanism
     setupHeartbeat(connection);
