@@ -20,7 +20,7 @@ import dynamic from 'next/dynamic'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Zap, Wifi } from 'lucide-react'
+import { Loader2, Zap, Wifi, Check } from 'lucide-react'
 
 // Dynamic import Monaco Editor to reduce initial bundle size
 const Editor = dynamic(() => import('@monaco-editor/react'), {
@@ -168,137 +168,142 @@ export function MonacoDemo({
           />
         </div>
 
-        {/* Warmup Button */}
+        {/* Warmup Button - Show only if not warmed up */}
         {onWarmup && !isWarmedUp && (
-          <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/30">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1">
-                <div className="text-sm font-semibold text-primary mb-1">Want to experience blazing speed?</div>
-                <p className="text-xs text-muted-foreground">
-                  Initialize our high-performance engine first. This ensures instant PDF generation with zero cold-start delay.
-                </p>
-              </div>
-              <Button
-                onClick={onWarmup}
-                disabled={isWarmingUp || isWarmedUp}
-                size="lg"
-                className="shrink-0"
-                variant="default"
-              >
-                {isWarmingUp ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Warming up...
-                  </>
-                ) : (
-                  <>
-                    <Zap className="mr-2 h-4 w-4" />
-                    I want to feel the speed
-                  </>
-                )}
-              </Button>
-            </div>
+          <div className="flex flex-col items-center gap-6 py-8">
+            <Button
+              onClick={onWarmup}
+              disabled={isWarmingUp}
+              size="lg"
+              className="h-20 px-12 text-lg font-bold shadow-xl hover:shadow-2xl transition-all"
+              variant="default"
+            >
+              {isWarmingUp ? (
+                <>
+                  <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                  <div className="flex flex-col items-start">
+                    <span>Warming up...</span>
+                    <span className="text-xs font-normal opacity-80">Initializing high-performance engine</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Zap className="mr-3 h-6 w-6" />
+                  <div className="flex flex-col items-start">
+                    <span>I want to feel the speed</span>
+                    <span className="text-xs font-normal opacity-80">(free live demo, try it yourself within seconds)</span>
+                  </div>
+                </>
+              )}
+            </Button>
+            <p className="text-sm text-muted-foreground text-center max-w-md">
+              Click to initialize our high-performance engine. This ensures instant PDF generation with zero cold-start delay.
+            </p>
           </div>
         )}
 
         {/* Warmed Up Success Message */}
         {isWarmedUp && (
-          <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+          <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30 mb-4">
             <div className="flex items-center gap-2 text-sm text-green-600">
-              <Check className="h-4 w-4" />
-              <span className="font-semibold">Engine warmed up!</span>
-              <span className="text-muted-foreground">Now try "Speedstein's Secret Tech" for instant PDF generation</span>
+              <Check className="h-5 w-5" />
+              <span className="font-semibold">🎉 Engine warmed up and ready!</span>
+              <span className="text-muted-foreground">Now compare the technologies below</span>
             </div>
           </div>
         )}
 
-        {/* Technology Comparison Header */}
-        <div className="p-4 rounded-lg bg-muted/30 border border-primary/20">
-          <div className="text-sm font-semibold text-primary mb-1">🚀 Technology Showcase</div>
-          <p className="text-xs text-muted-foreground">
-            Compare traditional REST API vs. Speedstein's secret tech.
-            Our proprietary WebSocket-based technology delivers significantly faster performance,
-            especially when generating multiple PDFs. The speed advantage compounds with scale.
-          </p>
-        </div>
-
-        {/* Dual Demo Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* REST API Demo */}
-          <div className="space-y-2">
-            <div className="text-xs text-muted-foreground text-center mb-1">
-              <span className="font-semibold">Standard Technology</span>
-              <span className="block text-[10px]">Traditional HTTP/REST (competitors use this)</span>
+        {/* Technology Comparison Header - Show only after warmup */}
+        {isWarmedUp && (
+          <>
+            <div className="p-4 rounded-lg bg-muted/30 border border-primary/20">
+              <div className="text-sm font-semibold text-primary mb-1">🚀 Technology Showcase</div>
+              <p className="text-xs text-muted-foreground">
+                Compare traditional REST API vs. Speedstein's secret tech.
+                Our proprietary WebSocket-based technology delivers significantly faster performance,
+                especially when generating multiple PDFs. The speed advantage compounds with scale.
+              </p>
             </div>
-            <Button
-              onClick={handleGenerateRest}
-              disabled={isGenerating || !html.trim()}
-              className="w-full"
-              size="lg"
-              variant={activeMode === 'rest' ? 'default' : 'outline'}
-            >
-              {isGenerating && activeMode === 'rest' ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating (REST)...
-                </>
-              ) : (
-                <>
-                  <Zap className="mr-2 h-4 w-4" />
-                  REST API
-                </>
-              )}
-            </Button>
-            {lastRestTime !== null && lastRestTime !== undefined && (
-              <div className="text-center text-xs text-muted-foreground">
-                <span className="font-semibold">{lastRestTime}ms</span>
-                {lastRestTime < 2000 && (
-                  <span className="ml-1 text-green-600">✓ Fast</span>
-                )}
-                {lastRestTime >= 2000 && (
-                  <span className="ml-1 text-orange-600">• Standard speed</span>
-                )}
-              </div>
-            )}
-          </div>
 
-          {/* WebSocket RPC Demo */}
-          {onGenerateRpc && (
-            <div className="space-y-2">
-              <div className="text-xs text-primary text-center mb-1">
-                <span className="font-semibold">⚡ Speedstein's Secret Tech</span>
-                <span className="block text-[10px]">Proprietary WebSocket Protocol</span>
-              </div>
-              <Button
-                onClick={handleGenerateRpc}
-                disabled={isGenerating || !html.trim()}
-                className="w-full relative"
-                size="lg"
-                variant={activeMode === 'rpc' ? 'default' : 'outline'}
-              >
-                {isGenerating && activeMode === 'rpc' ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating (RPC)...
-                  </>
-                ) : (
-                  <>
-                    <Wifi className="mr-2 h-4 w-4" />
-                    WebSocket RPC
-                  </>
-                )}
-              </Button>
-              {lastRpcTime !== null && lastRpcTime !== undefined && (
-                <div className="text-center text-xs text-muted-foreground">
-                  <span className="font-semibold text-green-600">{lastRpcTime}ms</span>
-                  {lastRpcTime < 2000 && (
-                    <span className="ml-1 text-green-600">✓ Blazing Fast</span>
+            {/* Dual Demo Buttons - Speedstein on LEFT, REST on RIGHT */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Speedstein's Secret Tech (LEFT) */}
+              {onGenerateRpc && (
+                <div className="space-y-2">
+                  <div className="text-xs text-primary text-center mb-1">
+                    <span className="font-semibold">⚡ Speedstein's Secret Tech</span>
+                    <span className="block text-[10px]">Proprietary WebSocket Protocol</span>
+                  </div>
+                  <Button
+                    onClick={handleGenerateRpc}
+                    disabled={isGenerating || !html.trim()}
+                    className="w-full relative"
+                    size="lg"
+                    variant={activeMode === 'rpc' ? 'default' : 'outline'}
+                  >
+                    {isGenerating && activeMode === 'rpc' ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating (RPC)...
+                      </>
+                    ) : (
+                      <>
+                        <Wifi className="mr-2 h-4 w-4" />
+                        Speedstein Tech
+                      </>
+                    )}
+                  </Button>
+                  {lastRpcTime !== null && lastRpcTime !== undefined && (
+                    <div className="text-center text-xs text-muted-foreground">
+                      <span className="font-semibold text-green-600">{lastRpcTime}ms</span>
+                      {lastRpcTime < 2000 && (
+                        <span className="ml-1 text-green-600">✓ Blazing Fast</span>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
+
+              {/* Standard REST API (RIGHT) */}
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground text-center mb-1">
+                  <span className="font-semibold">Standard Technology</span>
+                  <span className="block text-[10px]">Traditional HTTP/REST (competitors use this)</span>
+                </div>
+                <Button
+                  onClick={handleGenerateRest}
+                  disabled={isGenerating || !html.trim()}
+                  className="w-full"
+                  size="lg"
+                  variant={activeMode === 'rest' ? 'default' : 'outline'}
+                >
+                  {isGenerating && activeMode === 'rest' ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating (REST)...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="mr-2 h-4 w-4" />
+                      Standard REST API
+                    </>
+                  )}
+                </Button>
+                {lastRestTime !== null && lastRestTime !== undefined && (
+                  <div className="text-center text-xs text-muted-foreground">
+                    <span className="font-semibold">{lastRestTime}ms</span>
+                    {lastRestTime < 2000 && (
+                      <span className="ml-1 text-green-600">✓ Fast</span>
+                    )}
+                    {lastRestTime >= 2000 && (
+                      <span className="ml-1 text-orange-600">• Standard speed</span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-        </div>
+          </>
+        )}
 
         {/* Performance Comparison */}
         {lastRestTime !== null && lastRpcTime !== null && lastRestTime !== undefined && lastRpcTime !== undefined && (
