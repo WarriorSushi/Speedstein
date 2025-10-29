@@ -200,4 +200,93 @@ If a feature violates simplicity principles (e.g., introduces new dependencies, 
 - Explain why simpler alternatives were rejected
 - Include this justification in the feature's plan.md Complexity Tracking table
 
-**Version**: 1.0.0 | **Ratified**: 2025-10-25 | **Last Amended**: 2025-10-25
+## Current Deviations & Waivers
+
+**Last Updated**: 2025-10-29
+
+This section documents known deviations from constitutional principles, their status, and approved waivers.
+
+### Compliance Status Matrix
+
+| Principle | Status | Compliance | Notes |
+|-----------|--------|------------|-------|
+| I. Performance First | ⚠️ Partial | 60% | P95 not validated in production, browser pooling works |
+| II. Security & Authentication | ⚠️ Partial | 75% | API keys hashed ✅, RLS enabled ✅, Rate limiting ❌ |
+| III. Design System (OKLCH) | ⚠️ Partial | 70% | OKLCH defined ✅, some components may use legacy colors |
+| IV. Tech Stack Constraints | ❌ Violated | 80% | DodoPayments NOT implemented |
+| V. Code Quality | ✅ Compliant | 95% | TypeScript strict ✅, Zod validation ✅, minor console.log |
+| VI. Cap'n Web Best Practices | ❌ Violated | 50% | Type errors exist, promise pipelining broken |
+| VII. User Experience | ⚠️ Unknown | 65% | Landing page exists ✅, Lighthouse not run |
+| VIII. Testing & Quality | ❌ Violated | 25% | E2E tests 5% complete, unit tests exist |
+| IX. Documentation | ✅ Compliant | 85% | API docs ✅, examples ✅, some gaps in inline comments |
+| X. Deployment & Operations | ❌ Violated | 50% | Sentry installed but not configured, uptime monitoring missing |
+
+**Overall Constitutional Compliance**: **62%** (6 principles partially/fully compliant, 4 principles violated)
+
+### Approved Deviations for MVP Launch
+
+#### Principle II Violation: Rate Limiting Not Implemented
+- **Status**: ❌ BLOCKING - Not implemented
+- **Impact**: HIGH - API abuse risk, quota enforcement impossible
+- **Waiver**: NOT APPROVED - Must implement before public launch
+- **Plan**: Implement in Phase 2 (2 days)
+- **Owner**: Backend team
+- **Target Date**: 2025-11-05
+
+#### Principle IV Violation: DodoPayments Not Implemented
+- **Status**: ❌ BLOCKING - Not implemented
+- **Impact**: CRITICAL - No revenue model, cannot monetize
+- **Waiver**: APPROVED for internal testing only
+- **Plan**: Implement in Phase 4-5 (1 week)
+- **Owner**: Full-stack team
+- **Target Date**: 2025-11-10
+- **Workaround**: Users can sign up but cannot upgrade tiers
+
+#### Principle VI Violation: WebSocket RPC Type Errors
+- **Status**: ❌ Non-blocking - REST API fully functional
+- **Impact**: MEDIUM - Promise pipelining unavailable, batch optimization degraded
+- **Waiver**: APPROVED for MVP launch
+- **Plan**: Fix in Phase 3 (3 days)
+- **Owner**: Backend team
+- **Target Date**: 2025-11-08
+- **Workaround**: REST API provides full functionality, WebSocket optional feature
+- **Technical Details**: PdfService expects SimpleBrowserService but RPC uses BrowserPool (type mismatch)
+
+#### Principle VIII Violation: E2E Test Coverage Incomplete
+- **Status**: ❌ BLOCKING - Only 1 test file exists (5% coverage vs 80% target)
+- **Impact**: HIGH - Manual testing required, regression risk
+- **Waiver**: APPROVED for internal testing with manual QA
+- **Plan**: Implement comprehensive E2E suite in Phase 7 (1 week)
+- **Owner**: QA/Full-stack team
+- **Target Date**: 2025-11-15
+- **Risk**: High regression risk without automated tests
+- **Mitigation**: Manual testing checklist required before each release
+- **Required Tests**: auth.spec.ts, api-keys.spec.ts, pdf-generation.spec.ts, payments.spec.ts, dashboard.spec.ts, rate-limiting.spec.ts
+
+#### Principle X Violation: Sentry Not Configured
+- **Status**: ⚠️ Semi-blocking - Installed but not configured
+- **Impact**: MEDIUM - Error tracking unavailable, debugging difficult
+- **Waiver**: APPROVED for internal testing only
+- **Plan**: Configure in Phase 6 (1 day)
+- **Owner**: DevOps/Backend team
+- **Target Date**: 2025-11-05
+- **Risk**: Medium - errors won't be captured until configured
+- **Requirements**:
+  - Frontend Sentry DSN in apps/web/.env.local
+  - Worker Sentry integration with @sentry/cloudflare
+  - Error boundaries in React components
+  - Alerting rules configured
+
+### Unresolved Violations (MUST FIX BEFORE PUBLIC LAUNCH)
+
+1. **Rate Limiting** (Principle II) - BLOCKING
+2. **DodoPayments Integration** (Principle IV) - BLOCKING for revenue
+3. **E2E Test Suite** (Principle VIII) - BLOCKING for quality assurance
+4. **Sentry Configuration** (Principle X) - BLOCKING for production monitoring
+
+### Amendment History
+
+- **v1.1.0** (2025-10-29): Added "Current Deviations & Waivers" section documenting 5 principle violations with approved waivers and remediation plans
+- **v1.0.0** (2025-10-25): Initial constitution ratification with 10 core principles
+
+**Version**: 1.1.0 | **Ratified**: 2025-10-25 | **Last Amended**: 2025-10-29

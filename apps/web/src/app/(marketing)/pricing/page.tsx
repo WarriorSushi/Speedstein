@@ -44,7 +44,7 @@ const tiers = [
     billingCycle: 'per month',
     description: 'For growing projects and small businesses',
     features: {
-      requests: '1,000 PDFs per month',
+      requests: '5,000 PDFs per month',
       concurrent: '3 concurrent requests',
       pageLimit: '50 pages per PDF',
       retention: '30 days storage',
@@ -59,11 +59,11 @@ const tiers = [
   },
   {
     name: 'Pro',
-    price: '$99',
+    price: '$149',
     billingCycle: 'per month',
     description: 'For growing businesses with high volume',
     features: {
-      requests: '10,000 PDFs per month',
+      requests: '50,000 PDFs per month',
       concurrent: '10 concurrent requests',
       pageLimit: '200 pages per PDF',
       retention: '90 days storage',
@@ -78,11 +78,11 @@ const tiers = [
   },
   {
     name: 'Enterprise',
-    price: 'Custom',
-    billingCycle: 'contact us',
+    price: '$499',
+    billingCycle: 'per month',
     description: 'For large scale operations',
     features: {
-      requests: '100,000+ PDFs per month',
+      requests: '500,000 PDFs per month',
       concurrent: '50 concurrent requests',
       pageLimit: '1,000 pages per PDF',
       retention: '365 days storage',

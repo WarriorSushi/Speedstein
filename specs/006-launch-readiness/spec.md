@@ -53,7 +53,7 @@ A free-tier user has exceeded their monthly quota and wants to upgrade to the St
 
 **Acceptance Scenarios**:
 
-1. **Given** a free-tier user on the billing page, **When** they view the pricing tiers, **Then** they see Free (current), Starter ($29/mo), Pro ($149/mo), and Enterprise ($999/mo) with clear feature comparisons
+1. **Given** a free-tier user on the billing page, **When** they view the pricing tiers, **Then** they see Free (current), Starter ($29/mo), Pro ($149/mo), and Enterprise ($499/mo) with clear feature comparisons
 2. **Given** a user clicking "Upgrade to Starter", **When** they are redirected to DodoPayments checkout, **Then** they see the correct amount ($29), subscription details, and payment form
 3. **Given** a user completing payment successfully, **When** the payment is processed, **Then** a webhook is triggered to update their subscription status to "active" and tier to "starter"
 4. **Given** a user with an active paid subscription, **When** they view the billing page, **Then** they see their current plan, next billing date, payment method (last 4 digits), and the option to manage or cancel
@@ -193,7 +193,7 @@ A performance engineer runs load tests against the production API and measures: 
 
 - **FR-016**: System MUST integrate DodoPayments SDK in both frontend (checkout) and backend (webhook handling)
 - **FR-017**: System MUST provide billing page at /dashboard/billing displaying current subscription tier, next billing date (if paid), payment method (last 4 digits), and upgrade/downgrade options
-- **FR-018**: System MUST display pricing tiers: Free ($0/mo, 100 PDFs), Starter ($29/mo, 5,000 PDFs), Pro ($149/mo, 50,000 PDFs), Enterprise ($999/mo, 500,000 PDFs)
+- **FR-018**: System MUST display pricing tiers: Free ($0/mo, 100 PDFs), Starter ($29/mo, 5,000 PDFs), Pro ($149/mo, 50,000 PDFs), Enterprise ($499/mo, 500,000 PDFs)
 - **FR-019**: System MUST create checkout flow at /checkout redirecting to DodoPayments hosted checkout page with pre-filled subscription tier and amount
 - **FR-020**: System MUST implement webhook handler at /api/webhooks/dodo handling events: subscription.created, subscription.updated, subscription.cancelled, payment.succeeded, payment.failed
 - **FR-021**: System MUST verify webhook signatures using DodoPayments webhook secret to prevent spoofing
