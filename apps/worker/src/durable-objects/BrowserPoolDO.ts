@@ -149,9 +149,19 @@ export class BrowserPoolDO {
       try {
         page = await browser.newPage();
       } catch (error) {
-        // Browser connection closed - mark as failed and get new one
+        // Browser connection closed - mark as crashed and release
         console.error('[BrowserPoolDO] Browser.newPage() failed, browser connection closed:', error);
-        await this.markBrowserAsFailed(browser);
+
+        // Find and mark the browser instance as crashed
+        const instance = this.browserPoolState.browserInstances.find(
+          (inst) => inst.browser === browser
+        );
+        if (instance) {
+          instance.status = 'crashed';
+          console.log(`[Pool] Marked browser ${instance.instanceId} as crashed`);
+        }
+
+        await this.releaseBrowser(browser);
         throw new Error(`Protocol error: Connection closed.`);
       }
 
