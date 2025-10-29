@@ -162,10 +162,24 @@ export function MonacoDemo({
           />
         </div>
 
+        {/* Technology Comparison Header */}
+        <div className="p-4 rounded-lg bg-muted/30 border border-primary/20">
+          <div className="text-sm font-semibold text-primary mb-1">🚀 Technology Showcase</div>
+          <p className="text-xs text-muted-foreground">
+            Compare traditional REST API vs. Speedstein's Cap'n Web RPC technology.
+            Our WebSocket-based RPC with promise pipelining delivers significantly faster performance,
+            especially when generating multiple PDFs. The speed advantage compounds with scale.
+          </p>
+        </div>
+
         {/* Dual Demo Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* REST API Demo */}
           <div className="space-y-2">
+            <div className="text-xs text-muted-foreground text-center mb-1">
+              <span className="font-semibold">Standard Technology</span>
+              <span className="block text-[10px]">Traditional HTTP/REST (competitors use this)</span>
+            </div>
             <Button
               onClick={handleGenerateRest}
               disabled={isGenerating || !html.trim()}
@@ -191,6 +205,9 @@ export function MonacoDemo({
                 {lastRestTime < 2000 && (
                   <span className="ml-1 text-green-600">✓ Fast</span>
                 )}
+                {lastRestTime >= 2000 && (
+                  <span className="ml-1 text-orange-600">• Standard speed</span>
+                )}
               </div>
             )}
           </div>
@@ -198,10 +215,14 @@ export function MonacoDemo({
           {/* WebSocket RPC Demo */}
           {onGenerateRpc && (
             <div className="space-y-2">
+              <div className="text-xs text-primary text-center mb-1">
+                <span className="font-semibold">⚡ Speedstein Technology</span>
+                <span className="block text-[10px]">Cap'n Web RPC + Promise Pipelining</span>
+              </div>
               <Button
                 onClick={handleGenerateRpc}
-                disabled={isGenerating || !html.trim() || rpcConnectionState === 'error'}
-                className="w-full"
+                disabled={isGenerating || !html.trim()}
+                className="w-full relative"
                 size="lg"
                 variant={activeMode === 'rpc' ? 'default' : 'outline'}
               >
@@ -219,9 +240,9 @@ export function MonacoDemo({
               </Button>
               {lastRpcTime !== null && lastRpcTime !== undefined && (
                 <div className="text-center text-xs text-muted-foreground">
-                  <span className="font-semibold">{lastRpcTime}ms</span>
+                  <span className="font-semibold text-green-600">{lastRpcTime}ms</span>
                   {lastRpcTime < 2000 && (
-                    <span className="ml-1 text-green-600">✓ Constitution Compliant</span>
+                    <span className="ml-1 text-green-600">✓ Blazing Fast</span>
                   )}
                 </div>
               )}
@@ -231,23 +252,54 @@ export function MonacoDemo({
 
         {/* Performance Comparison */}
         {lastRestTime !== null && lastRpcTime !== null && lastRestTime !== undefined && lastRpcTime !== undefined && (
-          <div className="mt-4 p-4 rounded-lg bg-muted/50 border">
-            <div className="text-sm font-semibold mb-2">Performance Comparison</div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <div className="text-muted-foreground">REST API</div>
+          <div className="mt-4 p-4 rounded-lg bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/30">
+            <div className="text-sm font-semibold mb-3 text-primary">⚡ Performance Comparison</div>
+            <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+              <div className="p-3 rounded-lg bg-background/50 border">
+                <div className="text-xs text-muted-foreground mb-1">Standard REST API</div>
                 <div className="text-2xl font-bold">{lastRestTime}ms</div>
               </div>
-              <div>
-                <div className="text-muted-foreground">WebSocket RPC</div>
+              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+                <div className="text-xs text-green-600 mb-1">Speedstein RPC</div>
                 <div className="text-2xl font-bold text-green-600">{lastRpcTime}ms</div>
               </div>
             </div>
             {lastRestTime > lastRpcTime && (
-              <div className="mt-2 text-xs text-green-600">
-                ⚡ RPC is {Math.round(((lastRestTime - lastRpcTime) / lastRestTime) * 100)}% faster
-                ({(lastRestTime - lastRpcTime).toFixed(0)}ms improvement)
-              </div>
+              <>
+                <div className="mb-3 pb-3 border-b border-primary/20">
+                  <div className="text-xs font-semibold text-green-600 mb-1">
+                    🚀 {Math.round(((lastRestTime - lastRpcTime) / lastRestTime) * 100)}% faster
+                    <span className="text-muted-foreground ml-1">({(lastRestTime - lastRpcTime).toFixed(0)}ms saved per PDF)</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold text-primary">Speed Advantage Compounds with Scale:</div>
+                  <div className="grid grid-cols-3 gap-2 text-[10px]">
+                    <div className="p-2 rounded bg-background/50 border">
+                      <div className="font-semibold text-muted-foreground">10 PDFs</div>
+                      <div className="text-green-600 font-bold">
+                        {((lastRestTime - lastRpcTime) * 10 / 1000).toFixed(1)}s saved
+                      </div>
+                    </div>
+                    <div className="p-2 rounded bg-background/50 border">
+                      <div className="font-semibold text-muted-foreground">100 PDFs</div>
+                      <div className="text-green-600 font-bold">
+                        {((lastRestTime - lastRpcTime) * 100 / 1000).toFixed(1)}s saved
+                      </div>
+                    </div>
+                    <div className="p-2 rounded bg-background/50 border">
+                      <div className="font-semibold text-muted-foreground">1,000 PDFs</div>
+                      <div className="text-green-600 font-bold">
+                        {((lastRestTime - lastRpcTime) * 1000 / 60000).toFixed(1)}min saved
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground italic mt-2">
+                    💡 With promise pipelining, RPC can process multiple PDFs concurrently over a single WebSocket connection,
+                    eliminating HTTP overhead and TCP handshakes. This is why enterprise customers choose Speedstein.
+                  </p>
+                </div>
+              </>
             )}
           </div>
         )}
