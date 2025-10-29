@@ -14,13 +14,13 @@ export default function Icon() {
       <div
         style={{
           fontSize: 24,
-          background: '#6366f1',
+          background: 'oklch(55% 0.25 260)', // Primary blue
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'white',
+          color: 'oklch(100% 0 0)', // Pure white
           borderRadius: '20%',
           fontWeight: 'bold',
         }}

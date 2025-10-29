@@ -39,14 +39,14 @@ const DEFAULT_HTML = `<!DOCTYPE html>
     body {
       font-family: Arial, sans-serif;
       margin: 2rem;
-      color: #333;
+      color: oklch(20% 0 0); /* Near black */
     }
     h1 {
-      color: #2563eb;
+      color: oklch(55% 0.25 260); /* Primary blue */
       margin-bottom: 1rem;
     }
     .highlight {
-      background: #fef3c7;
+      background: oklch(95% 0.1 85); /* Warm yellow */
       padding: 0.25rem 0.5rem;
       border-radius: 0.25rem;
     }
