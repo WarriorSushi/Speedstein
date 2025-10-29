@@ -71,7 +71,10 @@ type DemoMode = 'rest' | 'rpc'
 interface MonacoDemoProps {
   onGenerateRest?: (html: string) => void
   onGenerateRpc?: (html: string) => void
+  onWarmup?: () => Promise<void>
   isGenerating?: boolean
+  isWarmingUp?: boolean
+  isWarmedUp?: boolean
   lastRestTime?: number | null
   lastRpcTime?: number | null
   rpcConnectionState?: 'disconnected' | 'connecting' | 'connected' | 'error'
@@ -80,7 +83,10 @@ interface MonacoDemoProps {
 export function MonacoDemo({
   onGenerateRest,
   onGenerateRpc,
+  onWarmup,
   isGenerating = false,
+  isWarmingUp = false,
+  isWarmedUp = false,
   lastRestTime,
   lastRpcTime,
   rpcConnectionState = 'disconnected'
@@ -161,6 +167,50 @@ export function MonacoDemo({
             }}
           />
         </div>
+
+        {/* Warmup Button */}
+        {onWarmup && !isWarmedUp && (
+          <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/30">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-primary mb-1">Want to experience blazing speed?</div>
+                <p className="text-xs text-muted-foreground">
+                  Initialize our high-performance engine first. This ensures instant PDF generation with zero cold-start delay.
+                </p>
+              </div>
+              <Button
+                onClick={onWarmup}
+                disabled={isWarmingUp || isWarmedUp}
+                size="lg"
+                className="shrink-0"
+                variant="default"
+              >
+                {isWarmingUp ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Warming up...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="mr-2 h-4 w-4" />
+                    I want to feel the speed
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Warmed Up Success Message */}
+        {isWarmedUp && (
+          <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+            <div className="flex items-center gap-2 text-sm text-green-600">
+              <Check className="h-4 w-4" />
+              <span className="font-semibold">Engine warmed up!</span>
+              <span className="text-muted-foreground">Now try "Speedstein's Secret Tech" for instant PDF generation</span>
+            </div>
+          </div>
+        )}
 
         {/* Technology Comparison Header */}
         <div className="p-4 rounded-lg bg-muted/30 border border-primary/20">

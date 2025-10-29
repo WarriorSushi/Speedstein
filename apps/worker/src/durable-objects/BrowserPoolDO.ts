@@ -82,6 +82,8 @@ export class BrowserPoolDO {
       switch (action) {
         case 'generate-pdf':
           return await this.handleGeneratePdf(request);
+        case 'warmup':
+          return await this.handleWarmup();
         case 'health':
           return await this.handleHealth();
         case 'stats':
@@ -222,6 +224,54 @@ export class BrowserPoolDO {
       }
     } finally {
       await this.releaseBrowser(browser);
+    }
+  }
+
+  /**
+   * Handle warmup request - pre-initialize browser for fast first PDF
+   */
+  private async handleWarmup(): Promise<Response> {
+    try {
+      console.log('[BrowserPoolDO] Warmup requested');
+
+      // Acquire a browser (this will create one if none exist)
+      const browser = await this.acquireBrowser();
+
+      // Open a page and navigate to a simple page to fully initialize browser
+      const page = await browser.newPage();
+      await page.setContent('<html><body><h1>Warmup</h1></body></html>');
+      await page.close();
+
+      // Release browser back to pool
+      await this.releaseBrowser(browser);
+
+      console.log('[BrowserPoolDO] Warmup complete');
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Browser pool warmed up successfully',
+          activeBrowsers: this.browserPoolState.browserInstances.filter(
+            (b) => b.status === 'active'
+          ).length,
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    } catch (error) {
+      console.error('[BrowserPoolDO] Warmup failed:', error);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: error instanceof Error ? error.message : 'Warmup failed',
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
   }
 

@@ -31,6 +31,8 @@ import { Check, Zap, Shield, Code, ArrowRight } from 'lucide-react'
 
 export default function LandingPage() {
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isWarmingUp, setIsWarmingUp] = useState(false)
+  const [isWarmedUp, setIsWarmedUp] = useState(false)
   const [lastRestTime, setLastRestTime] = useState<number | null>(null)
   const [lastRpcTime, setLastRpcTime] = useState<number | null>(null)
 
@@ -45,6 +47,36 @@ export default function LandingPage() {
   //     connect().catch(err => console.error('[RPC] Auto-connect failed:', err))
   //   }
   // }, [connect])
+
+  // Warmup handler - pre-initialize browser for fast PDF generation
+  const handleWarmup = async () => {
+    setIsWarmingUp(true)
+    try {
+      // Connect WebSocket first
+      if (connectionState !== 'connected') {
+        await connect()
+      }
+
+      // Call warmup endpoint via fetch (not RPC, just a simple HTTP call)
+      const response = await fetch(`${workerUrl}/warmup`, {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        throw new Error('Warmup failed')
+      }
+
+      const result = await response.json()
+      console.log('[Warmup] Success:', result)
+
+      setIsWarmedUp(true)
+    } catch (error) {
+      console.error('[Warmup] Failed:', error)
+      alert('Failed to warm up engine. Please try again.')
+    } finally {
+      setIsWarmingUp(false)
+    }
+  }
 
   // REST API handler
   const handleGenerateRest = async (html: string) => {
@@ -201,7 +233,10 @@ export default function LandingPage() {
           <MonacoDemo
             onGenerateRest={handleGenerateRest}
             onGenerateRpc={handleGenerateRpc}
+            onWarmup={handleWarmup}
             isGenerating={isGenerating}
+            isWarmingUp={isWarmingUp}
+            isWarmedUp={isWarmedUp}
             lastRestTime={lastRestTime}
             lastRpcTime={lastRpcTime}
             rpcConnectionState={connectionState}

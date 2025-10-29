@@ -97,30 +97,20 @@ export class PdfGeneratorApi extends RpcTarget {
       const pdfBuffer = await this.generatePdfInternal(request.html, request.options || {});
       const generationTime = Date.now() - startTime;
 
-      // Upload to R2
-      const fileName = generatePdfFileName();
-      // Note: This is simplified - in production, inject env bindings properly
-      const uploadResult = {
-        url: `https://storage.example.com/${fileName}`,
-        size: pdfBuffer.length,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h
-        key: fileName,
-        etag: 'fake-etag',
-      };
-
       logger.info(`[RPC] PDF generated successfully`, {
         generationTime,
-        size: uploadResult.size,
+        size: pdfBuffer.length,
         requestId,
       });
 
+      // For RPC, return the buffer directly for lower latency (skip R2 upload)
+      // Client will download the PDF immediately
       return {
         success: true,
         data: {
-          url: uploadResult.url,
-          size: uploadResult.size,
+          pdfBuffer: Array.from(pdfBuffer), // Convert Buffer to array for JSON serialization
+          size: pdfBuffer.length,
           generationTime,
-          expiresAt: uploadResult.expiresAt,
           pdfId: requestId,
         },
       };

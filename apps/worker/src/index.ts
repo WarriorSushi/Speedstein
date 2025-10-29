@@ -119,6 +119,52 @@ app.get('/api/rpc', async (c) => {
 });
 
 /**
+ * POST /warmup - Warmup browser pool
+ *
+ * Pre-initialize browser pool for fast first PDF generation.
+ */
+app.post('/warmup', async (c) => {
+  const requestId = generateRequestId();
+  const logger = createLogger(requestId);
+
+  try {
+    logger.info('[Warmup] Request received');
+
+    // Get browser pool DO
+    const userId = 'warmup-user'; // Use a dedicated warmup user
+    const doId = c.env.BROWSER_POOL_DO.idFromName(`browser-pool-${userId}`);
+    const stub = c.env.BROWSER_POOL_DO.get(doId);
+
+    // Call warmup action
+    const response = await stub.fetch('https://browser-pool-do.internal/warmup?action=warmup', {
+      method: 'GET',
+    });
+
+    const result = await response.json();
+
+    logger.info('[Warmup] Success', result);
+
+    return c.json({
+      success: true,
+      message: 'Browser pool warmed up successfully',
+      ...result,
+    });
+  } catch (error) {
+    logger.error('[Warmup] Failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Warmup failed',
+      },
+      500
+    );
+  }
+});
+
+/**
  * POST /api/generate - Generate PDF from HTML
  *
  * Main endpoint for PDF generation. Requires API key authentication.

@@ -106,7 +106,16 @@
       "Bash(timeout 30 pnpm build:*)",
       "Bash(timeout 40 pnpm build:*)",
       "Bash(timeout 45 pnpm build:*)",
-      "Bash(timeout 120 pnpm build:*)"
+      "Bash(timeout 120 pnpm build:*)",
+      "Bash(git log:*)",
+      "Bash(git rm:*)",
+      "SlashCommand(/speckit.implement)",
+      "Bash(if [ -f \"Dockerfile\" ])",
+      "Bash(then echo \"Dockerfile exists\")",
+      "Bash(else echo \"No Dockerfile\")",
+      "Bash(generates the pdf\" and \"show users tht this is our tech and how much afsater)",
+      "Bash(it is compared to others. and we also tell hwo it compounds when more pdfs)",
+      "Bash(are being gnereated.\"\n\nRelated: Constitution Principle VI (Cap''n Web best practices)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
