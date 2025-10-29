@@ -326,13 +326,15 @@ export function MonacoDemo({
           <div className="mt-4 p-4 rounded-lg bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/30">
             <div className="text-sm font-semibold mb-3 text-primary">⚡ Performance Comparison</div>
             <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+              {/* Speedstein on LEFT to match button order */}
+              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+                <div className="text-xs text-green-600 mb-1">Speedstein Tech</div>
+                <div className="text-2xl font-bold text-green-600">{lastRpcTime}ms</div>
+              </div>
+              {/* Standard REST on RIGHT to match button order */}
               <div className="p-3 rounded-lg bg-background/50 border">
                 <div className="text-xs text-muted-foreground mb-1">Standard REST API</div>
                 <div className="text-2xl font-bold">{lastRestTime}ms</div>
-              </div>
-              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
-                <div className="text-xs text-green-600 mb-1">Speedstein RPC</div>
-                <div className="text-2xl font-bold text-green-600">{lastRpcTime}ms</div>
               </div>
             </div>
             {lastRestTime > lastRpcTime && (
