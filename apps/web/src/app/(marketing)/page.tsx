@@ -108,21 +108,26 @@ export default function LandingPage() {
       }
 
       const result = await generatePdfRpc(html)
+      console.log('[RPC] Received result:', result)
 
       const totalTime = Date.now() - startTime
 
       if (!result.success) {
-        throw new Error(result.error || 'PDF generation failed')
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'PDF generation failed'
+        throw new Error(errorMessage)
       }
 
-      // Store generation time
-      const generationTime = result.generationTime || totalTime
+      // Extract data from result (RPC returns { success, data: { url, size, generationTime, ... } })
+      const data = result.data || result
+      const generationTime = data.generationTime || totalTime
       setLastRpcTime(generationTime)
       console.log(`[RPC] PDF generated in ${generationTime}ms (total ${totalTime}ms)`)
 
-      // Download the PDF from buffer
-      if (result.pdfBuffer) {
-        const pdfBlob = new Blob([new Uint8Array(result.pdfBuffer)], { type: 'application/pdf' })
+      // Download the PDF from buffer or URL
+      if (data.pdfBuffer) {
+        const pdfBlob = new Blob([new Uint8Array(data.pdfBuffer)], { type: 'application/pdf' })
         const url = window.URL.createObjectURL(pdfBlob)
         const a = document.createElement('a')
         a.href = url
@@ -131,13 +136,13 @@ export default function LandingPage() {
         a.click()
         window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
-      } else if (result.url) {
+      } else if (data.url) {
         // Fallback: download from URL
-        window.open(result.url, '_blank')
+        window.open(data.url, '_blank')
       }
     } catch (error) {
       console.error('[RPC] Failed to generate PDF:', error)
-      alert('Failed to generate PDF via RPC. Please try again.')
+      alert(`Failed to generate PDF via RPC: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsGenerating(false)
     }

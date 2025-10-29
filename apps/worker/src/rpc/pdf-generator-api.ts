@@ -274,7 +274,7 @@ export class PdfGeneratorApi extends RpcTarget {
     const stub = this.browserPoolDO.get(doId);
 
     // Call the Durable Object's fetch handler to generate PDF
-    const response = await stub.fetch('https://browser-pool-do.internal/generate-pdf', {
+    const response = await stub.fetch('https://browser-pool-do.internal/generate-pdf?action=generate-pdf', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -166,8 +166,8 @@ export function MonacoDemo({
         <div className="p-4 rounded-lg bg-muted/30 border border-primary/20">
           <div className="text-sm font-semibold text-primary mb-1">🚀 Technology Showcase</div>
           <p className="text-xs text-muted-foreground">
-            Compare traditional REST API vs. Speedstein's Cap'n Web RPC technology.
-            Our WebSocket-based RPC with promise pipelining delivers significantly faster performance,
+            Compare traditional REST API vs. Speedstein's secret tech.
+            Our proprietary WebSocket-based technology delivers significantly faster performance,
             especially when generating multiple PDFs. The speed advantage compounds with scale.
           </p>
         </div>
@@ -216,8 +216,8 @@ export function MonacoDemo({
           {onGenerateRpc && (
             <div className="space-y-2">
               <div className="text-xs text-primary text-center mb-1">
-                <span className="font-semibold">⚡ Speedstein Technology</span>
-                <span className="block text-[10px]">Cap'n Web RPC + Promise Pipelining</span>
+                <span className="font-semibold">⚡ Speedstein's Secret Tech</span>
+                <span className="block text-[10px]">Proprietary WebSocket Protocol</span>
               </div>
               <Button
                 onClick={handleGenerateRpc}
@@ -295,8 +295,8 @@ export function MonacoDemo({
                     </div>
                   </div>
                   <p className="text-[10px] text-muted-foreground italic mt-2">
-                    💡 With promise pipelining, RPC can process multiple PDFs concurrently over a single WebSocket connection,
-                    eliminating HTTP overhead and TCP handshakes. This is why enterprise customers choose Speedstein.
+                    💡 Our proprietary technology processes multiple PDFs concurrently over a single connection,
+                    eliminating HTTP overhead and reducing latency. This is why enterprise customers choose Speedstein.
                   </p>
                 </div>
               </>

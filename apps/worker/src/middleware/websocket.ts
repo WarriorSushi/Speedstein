@@ -98,22 +98,28 @@ export async function handleWebSocketUpgrade(
 
         // Handle JSON RPC call (simplified format)
         if (message.method === 'generatePdf' && message.requestId) {
-          console.log(`[WebSocket ${sessionId}] RPC call: ${message.method}`);
+          console.log(`[WebSocket ${sessionId}] RPC call: ${message.method}`, {
+            htmlLength: message.params?.html?.length,
+            hasOptions: !!message.params?.options,
+          });
 
           try {
-            // Call the PDF API
-            const result = await pdfApi.generatePdf(
-              message.params.html,
-              message.params.options || {}
-            );
+            // Call the PDF API with proper RpcGeneratePdfRequest format
+            const result = await pdfApi.generatePdf({
+              html: message.params.html,
+              options: message.params.options || {},
+            });
 
-            // Send response
+            console.log(`[WebSocket ${sessionId}] PDF generation result:`, {
+              success: result.success,
+              hasData: !!(result as any).data,
+              hasError: !!(result as any).error,
+            });
+
+            // Send response - result is already in the correct format
             server.send(JSON.stringify({
               requestId: message.requestId,
-              result: {
-                success: true,
-                ...result,
-              },
+              result,
             }));
           } catch (error) {
             console.error(`[WebSocket ${sessionId}] RPC error:`, error);
@@ -121,7 +127,10 @@ export async function handleWebSocketUpgrade(
               requestId: message.requestId,
               result: {
                 success: false,
-                error: error instanceof Error ? error.message : 'Unknown error',
+                error: {
+                  code: 'INTERNAL_ERROR',
+                  message: error instanceof Error ? error.message : 'Unknown error',
+                },
               },
             }));
           }

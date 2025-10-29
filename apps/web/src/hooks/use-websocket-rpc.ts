@@ -77,6 +77,7 @@ export function useWebSocketRpc(workerUrl: string) {
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data)
+          console.log('[RPC] Received message:', message)
 
           // Handle heartbeat ping
           if (message.type === 'ping') {
@@ -88,10 +89,13 @@ export function useWebSocketRpc(workerUrl: string) {
           if (message.requestId && pendingRequestsRef.current.has(message.requestId)) {
             const resolve = pendingRequestsRef.current.get(message.requestId)!
             pendingRequestsRef.current.delete(message.requestId)
+            console.log('[RPC] Resolving request with result:', message.result)
             resolve(message.result)
+          } else {
+            console.warn('[RPC] Received message for unknown request:', message.requestId)
           }
         } catch (error) {
-          console.error('[RPC] Message parse error:', error)
+          console.error('[RPC] Message parse error:', error, 'Raw data:', event.data)
         }
       }
     })
