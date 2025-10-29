@@ -94,12 +94,12 @@ export default function DashboardPage() {
 
             <div className="flex gap-2">
               <Button asChild variant="outline" size="sm">
-                <Link href={"/dashboard/billing" as any}>
+                <Link href="/billing">
                   {tier === 'free' ? 'Upgrade Plan' : 'Manage Billing'}
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href={"/dashboard/api-keys" as any}>View API Keys</Link>
+                <Link href="/api-keys">View API Keys</Link>
               </Button>
             </div>
           </div>
@@ -141,7 +141,7 @@ export default function DashboardPage() {
               Create an API key to authenticate your PDF generation requests
             </p>
             <Button asChild variant="outline" size="sm">
-              <Link href={"/dashboard/api-keys" as any}>Generate Key</Link>
+              <Link href="/api-keys">Generate Key</Link>
             </Button>
           </div>
 

@@ -25,22 +25,22 @@ const navItems: NavItem[] = [
   },
   {
     title: 'API Keys',
-    href: '/dashboard/api-keys',
+    href: '/api-keys',
     icon: Key,
   },
   {
     title: 'Usage',
-    href: '/dashboard/usage',
+    href: '/usage',
     icon: BarChart3,
   },
   {
     title: 'Billing',
-    href: '/dashboard/billing',
+    href: '/billing',
     icon: CreditCard,
   },
   {
     title: 'Settings',
-    href: '/dashboard/settings',
+    href: '/settings',
     icon: Settings,
   },
 ];

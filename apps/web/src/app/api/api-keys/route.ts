@@ -181,10 +181,19 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error('Unexpected error in POST /api/api-keys:', error);
+    console.error('Error stack:', (error as Error)?.stack);
+    console.error('Error details:', {
+      message: (error as Error)?.message,
+      name: (error as Error)?.name,
+      cause: (error as any)?.cause,
+    });
     Sentry.captureException(error, {
       tags: { operation: 'api_keys_create', critical: true },
     });
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({
+      error: 'Failed to create API key',
+      details: (error as Error)?.message
+    }, { status: 500 });
   }
 }
 

@@ -23,17 +23,11 @@ CREATE INDEX idx_error_logs_sentry_event_id ON public.error_logs(sentry_event_id
 -- Enable Row Level Security
 ALTER TABLE public.error_logs ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies: Only admins can view error logs
-CREATE POLICY "Admins can view all error logs"
+-- RLS Policies: Only service role can view error logs
+CREATE POLICY "Service role can view all error logs"
   ON public.error_logs
   FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.users
-      WHERE id = auth.uid()
-      AND account_status = 'active'
-    )
-  );
+  USING (auth.jwt() ->> 'role' = 'service_role');
 
 -- Service role can insert error logs (from Worker)
 CREATE POLICY "Service role can insert error logs"

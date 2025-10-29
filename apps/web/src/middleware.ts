@@ -10,7 +10,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 /**
  * Protected routes that require authentication
  */
-const PROTECTED_ROUTES = ['/dashboard', '/api-keys', '/billing', '/settings'];
+const PROTECTED_ROUTES = ['/dashboard', '/api-keys', '/billing', '/settings', '/usage'];
 
 /**
  * Auth routes that should redirect to dashboard if already authenticated

@@ -38,15 +38,37 @@ export function ApiKeyCreateDialog({ open, onOpenChange, onKeyCreated }: ApiKeyC
     setLoading(true);
 
     try {
+      console.log('[API Key Create] Sending request with name:', name.trim());
+
       const response = await fetch('/api/api-keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim() }),
       });
 
-      const data = await response.json();
+      console.log('[API Key Create] Response status:', response.status);
+      console.log('[API Key Create] Response headers:', Object.fromEntries(response.headers.entries()));
+
+      const responseText = await response.text();
+      console.log('[API Key Create] Raw response:', responseText);
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('[API Key Create] Failed to parse response as JSON:', parseError);
+        throw new Error('Invalid response from server');
+      }
+
+      console.log('API Response:', { status: response.status, data });
 
       if (!response.ok) {
+        // Better error messaging for authentication issues
+        if (response.status === 401) {
+          throw new Error('You must be logged in to create API keys. Please sign in first.');
+        }
+        // Log the full error details for debugging
+        console.error('API Key Creation Failed:', { status: response.status, error: data.error, details: data.details });
         throw new Error(data.error || 'Failed to create API key');
       }
 
