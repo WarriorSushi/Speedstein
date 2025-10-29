@@ -170,7 +170,7 @@ export function MonacoDemo({
 
         {/* Warmup Button - Show only if not warmed up */}
         {onWarmup && !isWarmedUp && (
-          <div className="flex flex-col items-center gap-6 py-8">
+          <div className="flex flex-col items-center gap-4 py-8">
             <Button
               onClick={onWarmup}
               disabled={isWarmingUp}
@@ -183,7 +183,7 @@ export function MonacoDemo({
                   <Loader2 className="mr-3 h-6 w-6 animate-spin" />
                   <div className="flex flex-col items-start">
                     <span>Warming up...</span>
-                    <span className="text-xs font-normal opacity-80">Initializing high-performance engine</span>
+                    <span className="text-xs font-normal opacity-80">Initializing engine</span>
                   </div>
                 </>
               ) : (
@@ -191,207 +191,105 @@ export function MonacoDemo({
                   <Zap className="mr-3 h-6 w-6" />
                   <div className="flex flex-col items-start">
                     <span>I want to feel the speed</span>
-                    <span className="text-xs font-normal opacity-80">(free live demo, try it yourself within seconds)</span>
+                    <span className="text-xs font-normal opacity-80">(free live demo)</span>
                   </div>
                 </>
               )}
             </Button>
-            <p className="text-sm text-muted-foreground text-center max-w-md">
-              Click to initialize our high-performance engine. This ensures instant PDF generation with zero cold-start delay.
-            </p>
           </div>
         )}
 
         {/* Warmed Up Success Message */}
         {isWarmedUp && (
-          <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30 mb-4">
-            <div className="flex items-center gap-2 text-sm text-green-600">
-              <Check className="h-5 w-5" />
-              <span className="font-semibold">🎉 Engine warmed up and ready!</span>
-              <span className="text-muted-foreground">Now compare the technologies below</span>
-            </div>
+          <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30 mb-4 text-center">
+            <span className="text-sm font-semibold text-green-600">✓ Ready! Compare the technologies below</span>
           </div>
         )}
 
-        {/* Technology Comparison Header - Show only after warmup */}
+        {/* Dual Demo Buttons - Show after warmup */}
         {isWarmedUp && (
-          <>
-            <div className="p-4 rounded-lg bg-muted/30 border border-primary/20">
-              <div className="text-sm font-semibold text-primary mb-1">🚀 Technology Showcase</div>
-              <p className="text-xs text-muted-foreground">
-                Compare traditional REST API vs. Speedstein's secret tech.
-                Our proprietary WebSocket-based technology delivers significantly faster performance,
-                especially when generating multiple PDFs. The speed advantage compounds with scale.
-              </p>
-            </div>
-
-            {/* Dual Demo Buttons - Speedstein on LEFT, REST on RIGHT */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Speedstein's Secret Tech (LEFT) */}
-              {onGenerateRpc && (
-                <div className="space-y-2">
-                  <div className="text-xs text-primary text-center mb-1">
-                    <span className="font-semibold">⚡ Speedstein's Secret Tech</span>
-                    <span className="block text-[10px]">Proprietary WebSocket Protocol</span>
-                  </div>
-                  <Button
-                    onClick={handleGenerateRpc}
-                    disabled={isGenerating || !html.trim()}
-                    className="w-full relative"
-                    size="lg"
-                    variant={activeMode === 'rpc' ? 'default' : 'outline'}
-                  >
-                    {isGenerating && activeMode === 'rpc' ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Generating (RPC)...
-                      </>
-                    ) : (
-                      <>
-                        <Wifi className="mr-2 h-4 w-4" />
-                        Speedstein Tech
-                      </>
-                    )}
-                  </Button>
-                  {lastRpcTime !== null && lastRpcTime !== undefined && (
-                    <div className="text-center text-xs text-muted-foreground">
-                      <span className="font-semibold text-green-600">{lastRpcTime}ms</span>
-                      {lastRpcTime < 2000 && (
-                        <span className="ml-1 text-green-600">✓ Blazing Fast</span>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Standard REST API (RIGHT) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Speedstein's Secret Tech (LEFT) */}
+            {onGenerateRpc && (
               <div className="space-y-2">
-                <div className="text-xs text-muted-foreground text-center mb-1">
-                  <span className="font-semibold">Standard Technology</span>
-                  <span className="block text-[10px]">Traditional HTTP/REST (competitors use this)</span>
-                </div>
                 <Button
-                  onClick={handleGenerateRest}
+                  onClick={handleGenerateRpc}
                   disabled={isGenerating || !html.trim()}
-                  className="w-full"
+                  className="w-full relative"
                   size="lg"
-                  variant={activeMode === 'rest' ? 'default' : 'outline'}
+                  variant="default"
                 >
-                  {isGenerating && activeMode === 'rest' ? (
+                  {isGenerating && activeMode === 'rpc' ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating (REST)...
+                      Generating...
                     </>
                   ) : (
                     <>
-                      <Zap className="mr-2 h-4 w-4" />
-                      Standard REST API
+                      <Wifi className="mr-2 h-4 w-4" />
+                      ⚡ Speedstein Tech
                     </>
                   )}
                 </Button>
-                {lastRestTime !== null && lastRestTime !== undefined && (
-                  <div className="text-center text-xs text-muted-foreground">
-                    <span className="font-semibold">{lastRestTime}ms</span>
-                    {lastRestTime < 2000 && (
-                      <span className="ml-1 text-green-600">✓ Fast</span>
-                    )}
-                    {lastRestTime >= 2000 && (
-                      <span className="ml-1 text-orange-600">• Standard speed</span>
-                    )}
+                {lastRpcTime !== null && lastRpcTime !== undefined && (
+                  <div className="text-center text-sm font-bold text-green-600">
+                    {lastRpcTime}ms ✓
                   </div>
                 )}
               </div>
-            </div>
-          </>
-        )}
+            )}
 
-        {/* Best Part Message - Show after any PDF is generated */}
-        {(lastRestTime !== null || lastRpcTime !== null) && isWarmedUp && (
-          <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/40">
-            <div className="text-base font-bold text-primary mb-2">
-              🚀 And the best part...
-            </div>
-            <p className="text-sm font-semibold text-foreground mb-1">
-              Our tech works FASTER the more you use it!
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Click the <span className="font-semibold text-primary">Speedstein Tech</span> button again and watch the speed shoot up.
-              Browser reuse + WebSocket connection = compounding performance gains.
-            </p>
-          </div>
-        )}
-
-        {/* Performance Comparison */}
-        {lastRestTime !== null && lastRpcTime !== null && lastRestTime !== undefined && lastRpcTime !== undefined && (
-          <div className="mt-4 p-4 rounded-lg bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/30">
-            <div className="text-sm font-semibold mb-3 text-primary">⚡ Performance Comparison</div>
-            <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-              {/* Speedstein on LEFT to match button order */}
-              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
-                <div className="text-xs text-green-600 mb-1">Speedstein Tech</div>
-                <div className="text-2xl font-bold text-green-600">{lastRpcTime}ms</div>
-              </div>
-              {/* Standard REST on RIGHT to match button order */}
-              <div className="p-3 rounded-lg bg-background/50 border">
-                <div className="text-xs text-muted-foreground mb-1">Standard REST API</div>
-                <div className="text-2xl font-bold">{lastRestTime}ms</div>
-              </div>
-            </div>
-            {lastRestTime > lastRpcTime && (
-              <>
-                <div className="mb-3 pb-3 border-b border-primary/20">
-                  <div className="text-xs font-semibold text-green-600 mb-1">
-                    🚀 {Math.round(((lastRestTime - lastRpcTime) / lastRestTime) * 100)}% faster
-                    <span className="text-muted-foreground ml-1">({(lastRestTime - lastRpcTime).toFixed(0)}ms saved per PDF)</span>
-                  </div>
+            {/* Standard REST API (RIGHT) */}
+            <div className="space-y-2">
+              <Button
+                onClick={handleGenerateRest}
+                disabled={isGenerating || !html.trim()}
+                className="w-full"
+                size="lg"
+                variant="outline"
+              >
+                {isGenerating && activeMode === 'rest' ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="mr-2 h-4 w-4" />
+                    Standard REST API
+                  </>
+                )}
+              </Button>
+              {lastRestTime !== null && lastRestTime !== undefined && (
+                <div className="text-center text-sm font-semibold text-muted-foreground">
+                  {lastRestTime}ms
                 </div>
-                <div className="space-y-2">
-                  <div className="text-xs font-semibold text-primary">Speed Advantage Compounds with Scale:</div>
-                  <div className="grid grid-cols-3 gap-2 text-[10px]">
-                    <div className="p-2 rounded bg-background/50 border">
-                      <div className="font-semibold text-muted-foreground">10 PDFs</div>
-                      <div className="text-green-600 font-bold">
-                        {((lastRestTime - lastRpcTime) * 10 / 1000).toFixed(1)}s saved
-                      </div>
-                    </div>
-                    <div className="p-2 rounded bg-background/50 border">
-                      <div className="font-semibold text-muted-foreground">100 PDFs</div>
-                      <div className="text-green-600 font-bold">
-                        {((lastRestTime - lastRpcTime) * 100 / 1000).toFixed(1)}s saved
-                      </div>
-                    </div>
-                    <div className="p-2 rounded bg-background/50 border">
-                      <div className="font-semibold text-muted-foreground">1,000 PDFs</div>
-                      <div className="text-green-600 font-bold">
-                        {((lastRestTime - lastRpcTime) * 1000 / 60000).toFixed(1)}min saved
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground italic mt-2">
-                    💡 Our proprietary technology processes multiple PDFs concurrently over a single connection,
-                    eliminating HTTP overhead and reducing latency. This is why enterprise customers choose Speedstein.
-                  </p>
-                </div>
-              </>
-            )}
+              )}
+            </div>
           </div>
         )}
 
-        {/* Current Generation Time */}
-        {currentTime !== null && currentTime !== undefined && (
-          <div className="text-center text-sm text-muted-foreground">
-            ⚡ Last generated in <span className="font-semibold text-primary">{currentTime}ms</span>
-            {currentTime < 2000 && (
-              <span className="ml-2 text-green-600">• Constitution compliant (&lt;2s)</span>
-            )}
-            {currentTime >= 2000 && currentTime < 5000 && (
-              <span className="ml-2 text-yellow-600">• Good performance</span>
-            )}
-            {currentTime >= 5000 && (
-              <span className="ml-2 text-orange-600">• Optimization recommended</span>
-            )}
+        {/* Best Part Message - Show after first PDF */}
+        {lastRpcTime !== null && isWarmedUp && (
+          <div className="p-4 rounded-lg bg-primary/10 border-2 border-primary text-center">
+            <p className="text-base font-bold text-primary">
+              🚀 Click <span className="underline">Speedstein Tech</span> again - it gets FASTER with every use!
+            </p>
           </div>
         )}
+
+        {/* Simplified Performance Stats */}
+        {lastRestTime !== null && lastRpcTime !== null && lastRestTime !== undefined && lastRpcTime !== undefined && lastRestTime > lastRpcTime && (
+          <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-300 dark:border-green-700 text-center">
+            <p className="text-lg font-bold text-green-700 dark:text-green-400">
+              {Math.round(((lastRestTime - lastRpcTime) / lastRestTime) * 100)}% faster · {(lastRestTime - lastRpcTime).toFixed(0)}ms saved per PDF
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              At 1,000 PDFs: saves {((lastRestTime - lastRpcTime) * 1000 / 60000).toFixed(1)} minutes
+            </p>
+          </div>
+        )}
+
       </CardContent>
     </Card>
   )

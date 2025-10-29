@@ -147,8 +147,19 @@ export class BrowserPoolDO {
       // Generate PDF using the browser instance
       const page = await browser.newPage();
       try {
-        await page.setContent(html, { waitUntil: 'networkidle0' });
-        const pdfBuffer = await page.pdf(options as any); // Type cast - our PdfOptions is compatible with PDFOptions
+        // Set content with timeout - don't wait for networkidle0 (can hang)
+        await page.setContent(html, {
+          waitUntil: 'load',
+          timeout: 10000, // 10 second timeout
+        });
+
+        // Generate PDF with timeout
+        const pdfBuffer = await Promise.race([
+          page.pdf(options as any),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('PDF generation timeout')), 15000)
+          )
+        ]);
 
         const generationTime = Date.now() - startTime;
         this.browserPoolState.totalPdfsGenerated++;
