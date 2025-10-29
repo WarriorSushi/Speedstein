@@ -305,6 +305,22 @@ export function MonacoDemo({
           </>
         )}
 
+        {/* Best Part Message - Show after any PDF is generated */}
+        {(lastRestTime !== null || lastRpcTime !== null) && isWarmedUp && (
+          <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/40">
+            <div className="text-base font-bold text-primary mb-2">
+              🚀 And the best part...
+            </div>
+            <p className="text-sm font-semibold text-foreground mb-1">
+              Our tech works FASTER the more you use it!
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Click the <span className="font-semibold text-primary">Speedstein Tech</span> button again and watch the speed shoot up.
+              Browser reuse + WebSocket connection = compounding performance gains.
+            </p>
+          </div>
+        )}
+
         {/* Performance Comparison */}
         {lastRestTime !== null && lastRpcTime !== null && lastRestTime !== undefined && lastRpcTime !== undefined && (
           <div className="mt-4 p-4 rounded-lg bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/30">
