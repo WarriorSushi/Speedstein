@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Search, Menu, X, ChevronRight } from 'lucide-react';
 
 interface NavItem {
@@ -116,6 +117,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
 
             {/* Right nav */}
             <nav className="flex items-center space-x-2">
+              <ThemeToggle />
               <Button variant="ghost" asChild className="hidden sm:flex">
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
