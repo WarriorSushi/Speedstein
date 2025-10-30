@@ -9,6 +9,11 @@ import * as Sentry from '@sentry/nextjs';
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
+  // Enable logging
+  _experiments: {
+    enableLogs: true,
+  },
+
   // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
   // We recommend adjusting this value in production.
   tracesSampleRate: 1.0,
@@ -23,21 +28,38 @@ Sentry.init({
   // in development and sample at a lower rate in production
   replaysSessionSampleRate: 0.1,
 
-  // You can remove this option if you're not planning to use the Sentry Session Replay feature:
+  // Integrations
   integrations: [
     Sentry.replayIntegration({
       // Additional SDK configuration goes in here, for example:
       maskAllText: true,
       blockAllMedia: true,
     }),
+    // Send console.log, console.warn, and console.error calls as logs to Sentry
+    Sentry.consoleIntegration({ levels: ['log', 'warn', 'error'] }),
   ],
 
-  // Capture user context
+  // Sanitize sensitive data before sending
   beforeSend(event, hint) {
     // Filter out non-error events in development
     if (process.env.NODE_ENV === 'development' && !event.exception) {
       return null;
     }
+
+    // Remove API keys from error messages
+    if (event.message) {
+      event.message = event.message.replace(/sk_[a-zA-Z0-9_]+/g, 'sk_***');
+    }
+
+    // Sanitize request data
+    if (event.request) {
+      // Remove authorization headers
+      if (event.request.headers) {
+        delete event.request.headers['authorization'];
+        delete event.request.headers['Authorization'];
+      }
+    }
+
     return event;
   },
 

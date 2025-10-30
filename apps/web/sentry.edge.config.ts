@@ -16,5 +16,24 @@ Sentry.init({
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
 
+  // Sanitize sensitive data before sending
+  beforeSend(event, hint) {
+    // Remove API keys from error messages
+    if (event.message) {
+      event.message = event.message.replace(/sk_[a-zA-Z0-9_]+/g, 'sk_***');
+    }
+
+    // Sanitize request data
+    if (event.request) {
+      // Remove authorization headers
+      if (event.request.headers) {
+        delete event.request.headers['authorization'];
+        delete event.request.headers['Authorization'];
+      }
+    }
+
+    return event;
+  },
+
   environment: process.env.NODE_ENV,
 });
