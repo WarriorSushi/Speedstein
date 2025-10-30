@@ -87,7 +87,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           </Button>
 
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="text-xl font-bold">Speedstein</span>
+            <span className="text-xl font-bold italic text-primary">Speedstein</span>
           </Link>
 
           {/* Main navigation */}
@@ -97,9 +97,6 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             </Link>
             <Link href="/docs" className="transition-colors hover:text-foreground text-foreground font-medium">
               Docs
-            </Link>
-            <Link href="https://github.com/speedstein/speedstein" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground/80 text-foreground/60">
-              GitHub
             </Link>
           </nav>
 
@@ -170,28 +167,9 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           </aside>
 
           {/* Main content */}
-          <main className="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_300px]">
-            <div className="mx-auto w-full min-w-0">
+          <main className="relative py-6 lg:gap-10 lg:py-8">
+            <div className="mx-auto w-full min-w-0 max-w-4xl">
               {children}
-            </div>
-
-            {/* Right sidebar - Table of contents */}
-            <div className="hidden text-sm xl:block">
-              <div className="sticky top-16 -mt-10 max-h-[calc(var(--vh)-4rem)] overflow-y-auto pt-10">
-                <div className="space-y-2">
-                  <p className="font-medium">On This Page</p>
-                  <ul className="m-0 list-none space-y-2">
-                    <li className="mt-0 pt-2">
-                      <a
-                        className="inline-block text-muted-foreground no-underline transition-colors hover:text-foreground"
-                        href="#introduction"
-                      >
-                        Introduction
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
             </div>
           </main>
         </div>

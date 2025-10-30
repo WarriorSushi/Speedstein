@@ -6,6 +6,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CodeBlock } from '@/components/code-block';
 import { ArrowRight, Zap, Shield, Code, Sparkles } from 'lucide-react';
 
 export default function DocsPage() {
@@ -34,43 +35,43 @@ export default function DocsPage() {
       </div>
 
       {/* Key Features */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <Zap className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>Lightning Fast</CardTitle>
-            <CardDescription>
-              Generate PDFs in under 2 seconds with our optimized browser pooling
-            </CardDescription>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <Shield className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>Secure by Default</CardTitle>
-            <CardDescription>
-              SHA-256 hashed API keys and row-level security on all data
-            </CardDescription>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <Code className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>Developer Friendly</CardTitle>
-            <CardDescription>
-              Simple REST API with SDKs for Node.js, Python, PHP, and Ruby
-            </CardDescription>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <Sparkles className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>Production Ready</CardTitle>
-            <CardDescription>
-              99.9% uptime SLA with automatic failover and monitoring
-            </CardDescription>
-          </CardHeader>
-        </Card>
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 py-8">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold">Lightning Fast</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Sub-second PDF generation with optimized browser pooling
+          </p>
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold">Secure by Default</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Enterprise-grade security with encrypted API keys
+          </p>
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Code className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold">Developer Friendly</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Simple REST API with comprehensive documentation
+          </p>
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold">Production Ready</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Built on Cloudflare's global network for reliability
+          </p>
+        </div>
       </div>
 
       {/* Quick Example */}
@@ -82,124 +83,67 @@ export default function DocsPage() {
           Generate your first PDF in 30 seconds. Here&apos;s a minimal example:
         </p>
 
-        <div className="rounded-lg border bg-muted/50 overflow-hidden">
-          <div className="border-b bg-muted px-4 py-2">
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1.5">
-                <div className="h-3 w-3 rounded-full bg-red-500" />
-                <div className="h-3 w-3 rounded-full bg-yellow-500" />
-                <div className="h-3 w-3 rounded-full bg-green-500" />
-              </div>
-              <span className="text-sm font-mono text-muted-foreground">Terminal</span>
-            </div>
-          </div>
-          <pre className="p-4 overflow-x-auto">
-            <code className="text-sm font-mono">{`curl https://api.speedstein.com/v1/pdf/generate \\
-  -H "Authorization: Bearer sk_test_YOUR_API_KEY" \\
+        <CodeBlock
+          language="bash"
+          code={`curl http://localhost:8787/api/generate \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "html": "<h1>Hello World</h1>",
-    "format": "A4"
-  }'`}</code>
-          </pre>
-        </div>
+    "html": "<h1>Hello World</h1>"
+  }'`}
+        />
       </div>
 
       {/* Response Example */}
       <div className="space-y-4">
         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Response</h3>
-        <div className="rounded-lg border bg-muted/50 overflow-hidden">
-          <div className="border-b bg-muted px-4 py-2">
-            <span className="text-sm font-mono text-muted-foreground">JSON Response</span>
-          </div>
-          <pre className="p-4 overflow-x-auto">
-            <code className="text-sm font-mono">{`{
-  "id": "pdf_1a2b3c4d5e6f",
-  "url": "https://storage.speedstein.com/pdfs/1a2b3c4d5e6f.pdf",
-  "size": 45234,
-  "pages": 1,
-  "generation_time_ms": 1847,
-  "created_at": "2025-10-28T12:34:56Z",
-  "expires_at": "2025-11-04T12:34:56Z"
-}`}</code>
-          </pre>
-        </div>
+        <CodeBlock
+          language="json"
+          title="JSON Response"
+          code={`{
+  "success": true,
+  "data": {
+    "url": "https://cdn.speedstein.com/pdfs/...",
+    "size": 45234,
+    "generationTime": 1847
+  },
+  "requestId": "req_...",
+  "quota": {
+    "limit": 100,
+    "used": 1,
+    "remaining": 99,
+    "percentage": 1
+  }
+}`}
+        />
       </div>
 
-      {/* Popular Endpoints */}
+      {/* API Endpoint */}
       <div className="space-y-4">
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
-          Popular API Endpoints
+          API Endpoint
         </h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">
-                <Link
-                  href="/docs/api/generate-pdf"
-                  className="hover:underline flex items-center justify-between"
-                >
-                  POST /v1/pdf/generate
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </CardTitle>
-              <CardDescription>
-                Generate a PDF from HTML, URL, or Markdown with custom formatting options
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">
-                <Link
-                  href="/docs/api/batch-generate"
-                  className="hover:underline flex items-center justify-between"
-                >
-                  POST /v1/pdf/batch
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </CardTitle>
-              <CardDescription>
-                Generate multiple PDFs in a single request with promise pipelining
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">
-                <Link
-                  href="/docs/api/get-pdf"
-                  className="hover:underline flex items-center justify-between"
-                >
-                  GET /v1/pdf/:id
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </CardTitle>
-              <CardDescription>
-                Retrieve a previously generated PDF by its ID
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">
-                <Link
-                  href="/docs/api/list-pdfs"
-                  className="hover:underline flex items-center justify-between"
-                >
-                  GET /v1/pdf/list
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </CardTitle>
-              <CardDescription>
-                List all PDFs with pagination and filtering options
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">
+              <Link
+                href="/docs/api/generate-pdf"
+                className="hover:underline flex items-center justify-between"
+              >
+                POST /api/generate
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </CardTitle>
+            <CardDescription>
+              Generate a PDF from HTML with customizable options
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-muted-foreground">
+            <p><strong>Request:</strong> Send HTML content in the request body</p>
+            <p><strong>Authentication:</strong> Bearer token (API key) required</p>
+            <p><strong>Response:</strong> JSON with PDF URL, size, and generation time</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Next Steps */}

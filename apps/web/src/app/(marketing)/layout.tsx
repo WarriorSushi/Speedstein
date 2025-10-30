@@ -27,7 +27,7 @@ export default function MarketingLayout({
         <div className="mx-auto flex h-16 max-w-screen-2xl items-center px-4 md:px-6 lg:px-8">
           <div className="mr-4 flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
-              <span className="text-xl font-bold">Speedstein</span>
+              <span className="text-xl font-bold italic text-primary">Speedstein</span>
             </Link>
             <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
               <Link
@@ -41,14 +41,6 @@ export default function MarketingLayout({
                 className="transition-colors hover:text-foreground/80 text-foreground/60"
               >
                 Docs
-              </Link>
-              <Link
-                href="https://github.com/speedstein/speedstein"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="transition-colors hover:text-foreground/80 text-foreground/60"
-              >
-                GitHub
               </Link>
             </nav>
           </div>

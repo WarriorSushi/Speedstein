@@ -9,7 +9,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Home, Key, CreditCard, Settings, BarChart3 } from 'lucide-react';
+import { Home, Key, CreditCard, Settings, BarChart3, BookOpen } from 'lucide-react';
 
 interface NavItem {
   title: string;
@@ -32,6 +32,11 @@ const navItems: NavItem[] = [
     title: 'Usage',
     href: '/usage',
     icon: BarChart3,
+  },
+  {
+    title: 'Documentation',
+    href: '/docs',
+    icon: BookOpen,
   },
   {
     title: 'Billing',
