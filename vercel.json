@@ -1,11 +1,10 @@
 {
-  "buildCommand": "pnpm install && cd apps/web && pnpm build",
+  "buildCommand": "cd apps/web && pnpm build",
   "outputDirectory": "apps/web/.next",
   "devCommand": "cd apps/web && pnpm dev",
-  "installCommand": "pnpm install --filter=@speedstein/web...",
+  "installCommand": "pnpm install",
   "framework": "nextjs",
   "github": {
     "silent": true
-  },
-  "installCommandInRoot": true
+  }
 }
