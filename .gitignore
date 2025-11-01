@@ -72,3 +72,5 @@ sentry.properties
 # Temp files
 *.tmp
 *.log
+
+.vercel
