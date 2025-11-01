@@ -37,10 +37,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/docs/pricing-tiers',
     '/docs/rate-limits',
     '/docs/changelog',
-  ].map((route) => ({
+  ].map((route): MetadataRoute.Sitemap[number] => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
-    changeFrequency: route === '/docs/changelog' ? 'weekly' : 'monthly' as const,
+    changeFrequency: route === '/docs/changelog' ? 'weekly' : 'monthly',
     priority: route === '' ? 1.0 : route.startsWith('/docs') ? 0.7 : 0.8,
   }));
 

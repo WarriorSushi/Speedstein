@@ -69,7 +69,7 @@ export default function DocsPage() {
             <h3 className="font-semibold">Production Ready</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Built on Cloudflare's global network for reliability
+            Built on Cloudflare&apos;s global network for reliability
           </p>
         </div>
       </div>

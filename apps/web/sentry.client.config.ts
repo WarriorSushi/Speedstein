@@ -35,8 +35,6 @@ Sentry.init({
       maskAllText: true,
       blockAllMedia: true,
     }),
-    // Send console.log, console.warn, and console.error calls as logs to Sentry
-    Sentry.consoleIntegration({ levels: ['log', 'warn', 'error'] }),
   ],
 
   // Sanitize sensitive data before sending

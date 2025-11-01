@@ -147,13 +147,13 @@ export default function LandingPage() {
       if (!result.success) {
         const errorMessage = typeof result.error === 'string'
           ? result.error
-          : result.error?.message || 'PDF generation failed'
+          : (result.error as any)?.message || 'PDF generation failed'
         throw new Error(errorMessage)
       }
 
       // Extract data from result (RPC returns { success, data: { url, size, generationTime, ... } })
-      const data = result.data || result
-      const generationTime = data.generationTime || totalTime
+      const data = (result as any).data || result
+      const generationTime = (data as any).generationTime || totalTime
       setLastRpcTime(generationTime)
       console.log(`[RPC] PDF generated in ${generationTime}ms (total ${totalTime}ms)`)
 
