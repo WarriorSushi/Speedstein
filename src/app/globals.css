@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: #0a0a0b;
+  --color-foreground: #e5e5e5;
+  --color-muted: #737373;
+  --color-border: #262626;
+  --color-surface: #141415;
+  --color-surface-2: #1a1a1c;
+  --color-teal: #14b8a6;
+  --color-teal-dim: #0d9488;
+  --color-teal-glow: rgba(20, 184, 166, 0.15);
+  --color-red: #ef4444;
+  --color-orange: #f97316;
+  --color-yellow: #eab308;
+  --color-green: #22c55e;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Animated score ring */
+@keyframes score-fill {
+  from { stroke-dashoffset: 283; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--color-teal-glow); }
+  50% { box-shadow: 0 0 20px 4px var(--color-teal-glow); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease-out both;
+}
+
+.animate-score-fill {
+  animation: score-fill 1.5s ease-out both;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Waterfall bar animation */
+@keyframes waterfall-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.animate-waterfall {
+  animation: waterfall-grow 0.6s ease-out both;
+  transform-origin: left;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
+
+/* Print styles for PDF export */
+@media print {
+  body { background: white; color: black; }
+  .no-print { display: none !important; }
 }
